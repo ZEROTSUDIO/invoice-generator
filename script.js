@@ -15,96 +15,96 @@ function newSJItem() { return { kode: '', nama: '', qty: '', satuan: '' }; }
 
 // ─── NOMOR AUTO ──────────────────────────────────────────
 function getYYYYMM() {
-    const d = new Date();
-    return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
 function getNextNomor(key, prefix) {
-    const stored = JSON.parse(localStorage.getItem(key) || '{}');
-    const ym = getYYYYMM();
-    if (stored.ym !== ym) { stored.ym = ym; stored.seq = 1; }
-    else stored.seq = (stored.seq || 0) + 1;
-    localStorage.setItem(key, JSON.stringify(stored));
-    return `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
+  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+  const ym = getYYYYMM();
+  if (stored.ym !== ym) { stored.ym = ym; stored.seq = 1; }
+  else stored.seq = (stored.seq || 0) + 1;
+  localStorage.setItem(key, JSON.stringify(stored));
+  return `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
 }
 
 function initNomor(key, prefix, inputId) {
-    const stored = JSON.parse(localStorage.getItem(key) || '{}');
-    const ym = getYYYYMM();
-    let nomor;
-    if (stored.ym === ym && stored.current) {
-        nomor = stored.current;
-    } else {
-        stored.ym = ym; stored.seq = stored.ym === ym ? (stored.seq || 0) : 0; stored.seq++;
-        nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
-        stored.current = nomor;
-        localStorage.setItem(key, JSON.stringify(stored));
-    }
-    document.getElementById(inputId).value = nomor;
+  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+  const ym = getYYYYMM();
+  let nomor;
+  if (stored.ym === ym && stored.current) {
+    nomor = stored.current;
+  } else {
+    stored.ym = ym; stored.seq = stored.ym === ym ? (stored.seq || 0) : 0; stored.seq++;
+    nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
+    stored.current = nomor;
+    localStorage.setItem(key, JSON.stringify(stored));
+  }
+  document.getElementById(inputId).value = nomor;
 }
 
 function saveCurrentNomor(key, val) {
-    const stored = JSON.parse(localStorage.getItem(key) || '{}');
-    stored.current = val;
-    localStorage.setItem(key, JSON.stringify(stored));
+  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+  stored.current = val;
+  localStorage.setItem(key, JSON.stringify(stored));
 }
 
 function generateNewNomor(key, prefix, inputId) {
-    const stored = JSON.parse(localStorage.getItem(key) || '{}');
-    const ym = getYYYYMM();
-    if (stored.ym !== ym) { stored.ym = ym; stored.seq = 0; }
-    stored.seq = (stored.seq || 0) + 1;
-    const nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
-    stored.current = nomor;
-    localStorage.setItem(key, JSON.stringify(stored));
-    document.getElementById(inputId).value = nomor;
-    updatePreview();
+  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+  const ym = getYYYYMM();
+  if (stored.ym !== ym) { stored.ym = ym; stored.seq = 0; }
+  stored.seq = (stored.seq || 0) + 1;
+  const nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
+  stored.current = nomor;
+  localStorage.setItem(key, JSON.stringify(stored));
+  document.getElementById(inputId).value = nomor;
+  updatePreview();
 }
 
 // ─── NUMBER FORMAT ────────────────────────────────────────
 function fmt(n) {
-    const val = parseFloat(n) || 0;
-    return val === 0 ? '' : val.toLocaleString('id-ID');
+  const val = parseFloat(n) || 0;
+  return val === 0 ? '' : val.toLocaleString('id-ID');
 }
 
 function parseFmt(s) { return parseFloat(String(s).replace(/\./g, '').replace(',', '.')) || 0; }
 
 // ─── TAB SWITCH ──────────────────────────────────────────
 function switchTab(tab) {
-    activeTab = tab;
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-    document.getElementById('form-nota').style.display = tab === 'nota' ? '' : 'none';
-    document.getElementById('form-sj').style.display = tab === 'sj' ? '' : 'none';
-    updatePreview();
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('form-nota').style.display = tab === 'nota' ? '' : 'none';
+  document.getElementById('form-sj').style.display = tab === 'sj' ? '' : 'none';
+  updatePreview();
 }
 
 // ─── ITEM ROW MANAGEMENT ──────────────────────────────────
 function addNotaRow() {
-    notaItems.push(newItem());
-    renderNotaItemsForm();
-    updatePreview();
+  notaItems.push(newItem());
+  renderNotaItemsForm();
+  updatePreview();
 }
 
 function removeNotaRow(i) {
-    if (notaItems.length > 1) { notaItems.splice(i, 1); renderNotaItemsForm(); updatePreview(); }
+  if (notaItems.length > 1) { notaItems.splice(i, 1); renderNotaItemsForm(); updatePreview(); }
 }
 
 function addSJRow() {
-    sjItems.push(newSJItem());
-    renderSJItemsForm();
-    updatePreview();
+  sjItems.push(newSJItem());
+  renderSJItemsForm();
+  updatePreview();
 }
 
 function removeSJRow(i) {
-    if (sjItems.length > 1) { sjItems.splice(i, 1); renderSJItemsForm(); updatePreview(); }
+  if (sjItems.length > 1) { sjItems.splice(i, 1); renderSJItemsForm(); updatePreview(); }
 }
 
 function renderNotaItemsForm() {
-    const tb = document.getElementById('nota-items-tbody');
-    tb.innerHTML = '';
-    notaItems.forEach((it, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+  const tb = document.getElementById('nota-items-tbody');
+  tb.innerHTML = '';
+  notaItems.forEach((it, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
       <td style="text-align:center;color:#888;font-weight:600">${i + 1}</td>
       <td><input type="text" value="${it.nama}" placeholder="Nama barang" oninput="notaItems[${i}].nama=this.value;updatePreview()"></td>
       <td><input type="number" value="${it.pcs}" placeholder="0" style="width:52px" oninput="notaItems[${i}].pcs=this.value;updatePreview()"></td>
@@ -112,49 +112,49 @@ function renderNotaItemsForm() {
       <td><input type="number" value="${it.harga}" placeholder="0" style="width:90px" oninput="notaItems[${i}].harga=this.value;updatePreview()"></td>
       <td style="text-align:right;font-weight:600;font-size:11px;white-space:nowrap">${fmt((parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0))}</td>
       <td><button class="btn-del-row" onclick="removeNotaRow(${i})">×</button></td>`;
-        tb.appendChild(tr);
-    });
+    tb.appendChild(tr);
+  });
 }
 
 function renderSJItemsForm() {
-    const tb = document.getElementById('sj-items-tbody');
-    tb.innerHTML = '';
-    sjItems.forEach((it, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+  const tb = document.getElementById('sj-items-tbody');
+  tb.innerHTML = '';
+  sjItems.forEach((it, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
       <td style="text-align:center;color:#888;font-weight:600">${i + 1}</td>
       <td><input type="text" value="${it.kode}" placeholder="Kode" style="width:60px" oninput="sjItems[${i}].kode=this.value;updatePreview()"></td>
       <td><input type="text" value="${it.nama}" placeholder="Nama barang" oninput="sjItems[${i}].nama=this.value;updatePreview()"></td>
       <td><input type="number" value="${it.qty}" placeholder="0" style="width:48px" oninput="sjItems[${i}].qty=this.value;updatePreview()"></td>
       <td><input type="text" value="${it.satuan}" placeholder="pcs" style="width:52px" oninput="sjItems[${i}].satuan=this.value;updatePreview()"></td>
       <td><button class="btn-del-row" onclick="removeSJRow(${i})">×</button></td>`;
-        tb.appendChild(tr);
-    });
+    tb.appendChild(tr);
+  });
 }
 
 // ─── GET FORM VALUES ──────────────────────────────────────
 function getV(id) { const el = document.getElementById(id); return el ? el.value : ''; }
 
 function getNotaSummary() {
-    const total = notaItems.reduce((s, it) => s + (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0), 0);
-    const dp = parseFmt(getV('nota-dp'));
-    const ongkir = parseFmt(getV('nota-ongkir'));
-    const kekurangan = total - dp + ongkir;
-    // update kekurangan display
-    const kekEl = document.getElementById('nota-kekurangan');
-    if (kekEl) kekEl.value = total ? fmt(kekurangan) : '';
-    return { total, dp, ongkir, kekurangan };
+  const total = notaItems.reduce((s, it) => s + (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0), 0);
+  const dp = parseFmt(getV('nota-dp'));
+  const ongkir = parseFmt(getV('nota-ongkir'));
+  const kekurangan = total - dp + ongkir;
+  // update kekurangan display
+  const kekEl = document.getElementById('nota-kekurangan');
+  if (kekEl) kekEl.value = total ? fmt(kekurangan) : '';
+  return { total, dp, ongkir, kekurangan };
 }
 
 // ─── PREVIEW ─────────────────────────────────────────────
 function updatePreview() {
-    const container = document.getElementById('preview-container');
-    if (activeTab === 'nota') container.innerHTML = buildNotaHTML();
-    else container.innerHTML = buildSJHTML();
+  const container = document.getElementById('preview-container');
+  if (activeTab === 'nota') container.innerHTML = buildNotaHTML();
+  else container.innerHTML = buildSJHTML();
 }
 
 function headerHTML() {
-    return `
+  return `
   <div class="doc-header">
     <div class="doc-logo"><img src="${LOGO_SRC}" alt="Logo"/></div>
     <div class="doc-info">
@@ -166,19 +166,19 @@ function headerHTML() {
 }
 
 function buildNotaHTML() {
-    const nomor = getV('nota-nomor');
-    const tgl = getV('nota-tgl') ? new Date(getV('nota-tgl')).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-    const po = getV('nota-po');
-    const { total, dp, ongkir, kekurangan } = getNotaSummary();
+  const nomor = getV('nota-nomor');
+  const tgl = getV('nota-tgl') ? new Date(getV('nota-tgl')).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+  const po = getV('nota-po');
+  const { total, dp, ongkir, kekurangan } = getNotaSummary();
 
-    // Empty rows to at least 10
-    const minRows = Math.max(notaItems.length, 10);
+  // Empty rows to at least 10
+  const minRows = Math.max(notaItems.length, 10);
 
-    let rows = '';
-    for (let i = 0; i < minRows; i++) {
-        const it = notaItems[i] || {};
-        const jumlah = (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
-        rows += `<tr>
+  let rows = '';
+  for (let i = 0; i < minRows; i++) {
+    const it = notaItems[i] || {};
+    const jumlah = (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
+    rows += `<tr>
       <td class="tc">${i + 1}</td>
       <td>${it.nama || ''}</td>
       <td class="tc">${it.pcs || ''}</td>
@@ -186,9 +186,9 @@ function buildNotaHTML() {
       <td class="tr">${it.harga ? fmt(parseFloat(it.harga)) : ''}</td>
       <td class="tr">${jumlah ? fmt(jumlah) : ''}</td>
     </tr>`;
-    }
+  }
 
-    return `<div class="doc-wrap">
+  return `<div class="doc-wrap">
     ${headerHTML()}
     <div class="doc-title-area">
       <h2>NOTA<br>PENJUALAN</h2>
@@ -209,15 +209,15 @@ function buildNotaHTML() {
   </table>
   <table class="nota-footer-table">
     <tr>
-      <td rowspan="4" style="width:72%;vertical-align:middle;font-size:10px">
+      <td rowspan="4" style="width:75.5%;vertical-align:middle;font-size:10px">
         <strong>Nb.</strong> Pembayaran via Bank/Giro/Cek sah bila uang sudah diterima Perusahaan<br>
         <strong>BCA A.N NURJAMAL a c :1040257477</strong>
       </td>
-      <td class="lbl">Jumlah</td><td style="text-align:right;width:15%">${fmt(total)}</td>
+      <td class="lbl">Jumlah</td><td style="width:12.25%; text-align:right">${fmt(total)}</td>
     </tr>
-    <tr><td class="lbl">DP</td><td style="text-align:right">${fmt(dp)}</td></tr>
-    <tr><td class="lbl">Ongkir</td><td style="text-align:right">${fmt(ongkir)}</td></tr>
-    <tr><td class="lbl">Kekurangan</td><td style="text-align:right;font-weight:bold">${total ? fmt(kekurangan) : ''}</td></tr>
+    <tr><td class="lbl">DP</td><td style="width:12.25%; text-align:right">${fmt(dp)}</td></tr>
+    <tr><td class="lbl">Ongkir</td><td style="width:12.25%; text-align:right">${fmt(ongkir)}</td></tr>
+    <tr><td class="lbl">Kekurangan</td><td style="width:12.25%; text-align:right;font-weight:bold">${total ? fmt(kekurangan) : ''}</td></tr>
   </table>
   <div class="nota-sig">
     <div>CUSTOMER</div>
@@ -227,18 +227,18 @@ function buildNotaHTML() {
 }
 
 function buildSJHTML() {
-    const nomor = getV('sj-nomor');
-    const noSurat = getV('sj-nosurat');
-    const tgl = getV('sj-tgl') ? new Date(getV('sj-tgl')).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-    const po = getV('sj-po');
-    const kepada = getV('sj-kepada');
-    const catatan = getV('sj-catatan');
+  const nomor = getV('sj-nomor');
+  const noSurat = getV('sj-nosurat');
+  const tgl = getV('sj-tgl') ? new Date(getV('sj-tgl')).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+  const po = getV('sj-po');
+  const kepada = getV('sj-kepada');
+  const catatan = getV('sj-catatan');
 
-    const minRows = Math.max(sjItems.length, 10);
-    let rows = '';
-    for (let i = 0; i < minRows; i++) {
-        const it = sjItems[i] || {};
-        rows += `<tr>
+  const minRows = Math.max(sjItems.length, 10);
+  let rows = '';
+  for (let i = 0; i < minRows; i++) {
+    const it = sjItems[i] || {};
+    rows += `<tr>
       <td class="tc">${i + 1}</td>
       <td class="tc">${it.kode || ''}</td>
       <td>${it.nama || ''}</td>
@@ -246,9 +246,9 @@ function buildSJHTML() {
       <td class="tc">${it.satuan || ''}</td>
       ${i === 0 ? `<td class="tc" rowspan="${minRows}" style="font-style:italic;color:#555;vertical-align:middle;font-size:10px">${catatan}</td>` : ''}
     </tr>`;
-    }
+  }
 
-    return `<div class="doc-wrap">
+  return `<div class="doc-wrap">
     ${headerHTML()}
     <div class="doc-title-area">
       <h2>SURAT JALAN</h2>
@@ -291,39 +291,39 @@ function buildSJHTML() {
 
 // ─── RESET ────────────────────────────────────────────────
 function resetForm() {
-    if (activeTab === 'nota') {
-        ['nota-tgl', 'nota-po', 'nota-dp', 'nota-ongkir', 'nota-kekurangan'].forEach(id => {
-            const el = document.getElementById(id); if (el) el.value = '';
-        });
-        notaItems = [newItem()];
-        renderNotaItemsForm();
-    } else {
-        ['sj-nosurat', 'sj-tgl', 'sj-po', 'sj-kepada', 'sj-catatan'].forEach(id => {
-            const el = document.getElementById(id); if (el) el.value = '';
-        });
-        sjItems = [newSJItem()];
-        renderSJItemsForm();
-    }
-    updatePreview();
+  if (activeTab === 'nota') {
+    ['nota-tgl', 'nota-po', 'nota-dp', 'nota-ongkir', 'nota-kekurangan'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    notaItems = [newItem()];
+    renderNotaItemsForm();
+  } else {
+    ['sj-nosurat', 'sj-tgl', 'sj-po', 'sj-kepada', 'sj-catatan'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    sjItems = [newSJItem()];
+    renderSJItemsForm();
+  }
+  updatePreview();
 }
 
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initNomor('nota_counter', 'NP', 'nota-nomor');
-    initNomor('sj_counter', 'SJ', 'sj-nomor');
-    renderNotaItemsForm();
-    renderSJItemsForm();
-    switchTab('nota');
+  initNomor('nota_counter', 'NP', 'nota-nomor');
+  initNomor('sj_counter', 'SJ', 'sj-nomor');
+  renderNotaItemsForm();
+  renderSJItemsForm();
+  switchTab('nota');
 
-    // Save nomor on change
-    document.getElementById('nota-nomor').addEventListener('input', e => saveCurrentNomor('nota_counter', e.target.value));
-    document.getElementById('sj-nomor').addEventListener('input', e => saveCurrentNomor('sj_counter', e.target.value));
+  // Save nomor on change
+  document.getElementById('nota-nomor').addEventListener('input', e => saveCurrentNomor('nota_counter', e.target.value));
+  document.getElementById('sj-nomor').addEventListener('input', e => saveCurrentNomor('sj_counter', e.target.value));
 
-    // Live update all inputs
-    document.querySelectorAll('#form-nota input, #form-nota textarea').forEach(el => {
-        el.addEventListener('input', updatePreview);
-    });
-    document.querySelectorAll('#form-sj input, #form-sj textarea').forEach(el => {
-        el.addEventListener('input', updatePreview);
-    });
+  // Live update all inputs
+  document.querySelectorAll('#form-nota input, #form-nota textarea').forEach(el => {
+    el.addEventListener('input', updatePreview);
+  });
+  document.querySelectorAll('#form-sj input, #form-sj textarea').forEach(el => {
+    el.addEventListener('input', updatePreview);
+  });
 });

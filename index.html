@@ -222,7 +222,13 @@
         <!-- ACTION BAR -->
         <div class="action-bar">
           <button class="btn-primary" onclick="window.print()">
-            🖨️ Print / Save PDF
+            🖨️ Print / PDF
+          </button>
+          <button
+            class="btn-preview-mobile btn-secondary"
+            onclick="openPreviewModal()"
+          >
+            👁 Preview
           </button>
           <button class="btn-secondary" onclick="resetForm()">↺ Reset</button>
         </div>
@@ -238,28 +244,85 @@
     </div>
     <!-- /app-body -->
 
+    <!-- ══ MODAL PREVIEW (mobile) ══ -->
+    <div
+      class="preview-modal-overlay"
+      id="preview-modal"
+      onclick="handleModalClick(event)"
+    >
+      <div class="preview-modal-bar">
+        <button class="btn-modal-print" onclick="window.print()">
+          🖨️ Print / Save PDF
+        </button>
+        <button class="btn-modal-close" onclick="closePreviewModal()">
+          ✕ Tutup
+        </button>
+      </div>
+      <div class="preview-modal-doc" id="modal-doc-wrapper">
+        <div id="modal-preview-container"></div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
+      // ── Scale desktop preview ──────────────────────────────
       function applyDocScale() {
         const wrapper = document.getElementById("doc-scale-wrapper");
         const panel = document.getElementById("panel-preview");
         if (!wrapper || !panel) return;
-        const panelW = panel.clientWidth - 48; // 24px padding each side
-        const docW = wrapper.scrollWidth; // 210mm in px
+        const panelW = panel.clientWidth - 48;
+        const docW = wrapper.scrollWidth;
         const scale = Math.min(1, panelW / docW);
         wrapper.style.transform = `scale(${scale})`;
         wrapper.style.marginBottom = `${wrapper.scrollHeight * scale - wrapper.scrollHeight}px`;
       }
       window.addEventListener("resize", applyDocScale);
-      // Also re-apply after each preview update
+
       const _origUpdate = window.updatePreview;
       window.updatePreview = function () {
         _origUpdate();
         setTimeout(applyDocScale, 10);
+        if (document.getElementById("preview-modal").classList.contains("open"))
+          syncModalPreview();
       };
       document.addEventListener("DOMContentLoaded", () =>
         setTimeout(applyDocScale, 50),
       );
+
+      // ── Modal preview ──────────────────────────────────────
+      function syncModalPreview() {
+        document.getElementById("modal-preview-container").innerHTML =
+          document.getElementById("preview-container").innerHTML;
+        applyModalScale();
+      }
+
+      function applyModalScale() {
+        const wrapper = document.getElementById("modal-doc-wrapper");
+        if (!wrapper) return;
+        const avail = Math.min(window.innerWidth - 32, 700);
+        const docW = wrapper.scrollWidth;
+        const scale = Math.min(1, avail / docW);
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.marginBottom = `${wrapper.scrollHeight * scale - wrapper.scrollHeight}px`;
+      }
+
+      function openPreviewModal() {
+        syncModalPreview();
+        document.getElementById("preview-modal").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closePreviewModal() {
+        document.getElementById("preview-modal").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      function handleModalClick(e) {
+        if (e.target === document.getElementById("preview-modal"))
+          closePreviewModal();
+      }
+
+      window.addEventListener("resize", applyModalScale);
     </script>
   </body>
 </html>

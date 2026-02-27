@@ -586,6 +586,9 @@ select:focus {
   .panel-form {
     display: none !important;
   }
+  .preview-modal-overlay {
+    display: none !important;
+  }
   .app-body {
     display: block !important;
   }
@@ -606,5 +609,122 @@ select:focus {
   @page {
     size: A4 landscape;
     margin: 8mm;
+  }
+}
+
+/* ─── MODAL PREVIEW ─────────────────────────────────────── */
+.preview-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.preview-modal-overlay.open {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-modal-bar {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.btn-modal-print {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-modal-close {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preview-modal-doc {
+  transform-origin: top center;
+  width: 210mm;
+}
+
+/* ─── MOBILE ─────────────────────────────────────────────── */
+/* Mobile action bar: tambah tombol Preview */
+.btn-preview-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* Layout jadi 1-kolom */
+  .app-body {
+    grid-template-columns: 1fr;
+    min-height: unset;
+  }
+
+  /* Sembunyikan panel preview desktop */
+  .panel-preview {
+    display: none;
+  }
+
+  /* Form panel full height scroll normal */
+  .panel-form {
+    max-height: unset;
+    border-right: none;
+  }
+
+  /* Padding lebih kecil di mobile */
+  .panel-form-inner {
+    padding: 16px 16px 90px;
+  }
+
+  /* Header lebih compact */
+  .app-header {
+    padding: 12px 16px;
+  }
+  .app-header h1 {
+    font-size: 14px;
+  }
+  .app-header img {
+    width: 30px;
+  }
+  .app-header span {
+    display: none;
+  }
+
+  /* 2-col form rows jadi 1-col di layar sangat kecil */
+  @media (max-width: 400px) {
+    .form-row.cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Tampilkan tombol preview */
+  .btn-preview-mobile {
+    display: flex;
+  }
+
+  /* Action bar: 3 tombol */
+  .action-bar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
   }
 }
