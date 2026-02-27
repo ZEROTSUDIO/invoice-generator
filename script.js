@@ -10,55 +10,97 @@ let activeTab = 'nota';
 let notaItems = [newItem()];
 let sjItems = [newSJItem()];
 
-function newItem() { return { nama: '', pcs: '', m2: '', harga: '' }; }
+function newItem() { return { type: 'pcs', nama: '', pcs: '', m2: '', harga: '' }; }
 function newSJItem() { return { kode: '', nama: '', qty: '', satuan: '' }; }
 
-// ─── NOMOR AUTO ──────────────────────────────────────────
+// ─── SUPABASE PARAMS ───────────────────────────────────────
+const supabaseUrl = 'https://yhhxbmbjzrgtfxjdrizu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloaHhibWJqenJndGZ4amRyaXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNzQyNjgsImV4cCI6MjA4Nzc1MDI2OH0.2bX25UW6r_BcN_yHUPN7ap5wRHuFhZFawTAuZKFvLmo';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+// ─── NOMOR AUTO (SUPABASE) ─────────────────────────────────
 function getYYYYMM() {
   const d = new Date();
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function getNextNomor(key, prefix) {
-  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+async function initNomor(key, prefix, inputId) {
   const ym = getYYYYMM();
-  if (stored.ym !== ym) { stored.ym = ym; stored.seq = 1; }
-  else stored.seq = (stored.seq || 0) + 1;
-  localStorage.setItem(key, JSON.stringify(stored));
-  return `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
-}
+  const inputEl = document.getElementById(inputId);
+  inputEl.value = 'Loading...';
 
-function initNomor(key, prefix, inputId) {
-  const stored = JSON.parse(localStorage.getItem(key) || '{}');
-  const ym = getYYYYMM();
-  let nomor;
-  if (stored.ym === ym && stored.current) {
-    nomor = stored.current;
-  } else {
-    stored.ym = ym; stored.seq = stored.ym === ym ? (stored.seq || 0) : 0; stored.seq++;
-    nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
-    stored.current = nomor;
-    localStorage.setItem(key, JSON.stringify(stored));
+  const { data, error } = await supabaseClient
+    .from('document_sequences')
+    .select('*')
+    .eq('id', key)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching sequence:', error);
+    inputEl.value = 'ERROR';
+    return;
   }
-  document.getElementById(inputId).value = nomor;
-}
 
-function saveCurrentNomor(key, val) {
-  const stored = JSON.parse(localStorage.getItem(key) || '{}');
-  stored.current = val;
-  localStorage.setItem(key, JSON.stringify(stored));
-}
+  let nomor;
+  if (data) {
+    if (data.ym === ym && data.current_val) {
+      nomor = data.current_val;
+    } else {
+      let nextSeq = data.ym === ym ? (data.seq || 0) : 0;
+      nextSeq++;
+      nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
+      await supabaseClient
+        .from('document_sequences')
+        .update({ ym: ym, seq: nextSeq, current_val: nomor })
+        .eq('id', key);
+    }
+  } else {
+    // Fallback if row does not exist, though it should be created by the user manually
+    nomor = `${prefix}-${ym}-001`;
+  }
 
-function generateNewNomor(key, prefix, inputId) {
-  const stored = JSON.parse(localStorage.getItem(key) || '{}');
-  const ym = getYYYYMM();
-  if (stored.ym !== ym) { stored.ym = ym; stored.seq = 0; }
-  stored.seq = (stored.seq || 0) + 1;
-  const nomor = `${prefix}-${ym}-${String(stored.seq).padStart(3, '0')}`;
-  stored.current = nomor;
-  localStorage.setItem(key, JSON.stringify(stored));
-  document.getElementById(inputId).value = nomor;
+  inputEl.value = nomor;
   updatePreview();
+}
+
+async function saveCurrentNomor(key, val) {
+  await supabaseClient
+    .from('document_sequences')
+    .update({ current_val: val })
+    .eq('id', key);
+}
+
+let debounceTimer = {};
+function debounceSaveNomor(key, val) {
+  clearTimeout(debounceTimer[key]);
+  debounceTimer[key] = setTimeout(() => {
+    saveCurrentNomor(key, val);
+  }, 500);
+}
+
+async function generateNewNomor(key, prefix, inputId) {
+  const inputEl = document.getElementById(inputId);
+  inputEl.value = 'Generating...';
+
+  const ym = getYYYYMM();
+  const { data } = await supabaseClient
+    .from('document_sequences')
+    .select('*')
+    .eq('id', key)
+    .single();
+
+  if (data) {
+    let nextSeq = data.ym === ym ? (data.seq || 0) : 0;
+    nextSeq++;
+    const nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
+    await supabaseClient
+      .from('document_sequences')
+      .update({ ym: ym, seq: nextSeq, current_val: nomor })
+      .eq('id', key);
+
+    inputEl.value = nomor;
+    updatePreview();
+  }
 }
 
 // ─── NUMBER FORMAT ────────────────────────────────────────
@@ -104,13 +146,23 @@ function renderNotaItemsForm() {
   tb.innerHTML = '';
   notaItems.forEach((it, i) => {
     const tr = document.createElement('tr');
+    const jumlah = it.type === 'tegel'
+      ? (parseFloat(it.m2) || 0) * (parseFloat(it.harga) || 0)
+      : (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
+
     tr.innerHTML = `
       <td style="text-align:center;color:#888;font-weight:600">${i + 1}</td>
+      <td>
+        <select onchange="notaItems[${i}].type=this.value;updatePreview();renderNotaItemsForm()" style="width:75px;font-size:11px">
+          <option value="pcs" ${it.type === 'pcs' ? 'selected' : ''}>Lainnya</option>
+          <option value="tegel" ${it.type === 'tegel' ? 'selected' : ''}>Tegel</option>
+        </select>
+      </td>
       <td><input type="text" value="${it.nama}" placeholder="Nama barang" oninput="notaItems[${i}].nama=this.value;updatePreview()"></td>
-      <td><input type="number" value="${it.pcs}" placeholder="0" style="width:52px" oninput="notaItems[${i}].pcs=this.value;updatePreview()"></td>
-      <td><input type="number" value="${it.m2}" placeholder="0" style="width:52px" oninput="notaItems[${i}].m2=this.value;updatePreview()"></td>
-      <td><input type="number" value="${it.harga}" placeholder="0" style="width:90px" oninput="notaItems[${i}].harga=this.value;updatePreview()"></td>
-      <td style="text-align:right;font-weight:600;font-size:11px;white-space:nowrap">${fmt((parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0))}</td>
+      <td><input type="number" value="${it.pcs}" placeholder="0" style="width:52px" oninput="notaItems[${i}].pcs=this.value;updatePreview();renderNotaItemsForm()"></td>
+      <td><input type="number" value="${it.m2}" placeholder="0" style="width:52px" oninput="notaItems[${i}].m2=this.value;updatePreview();renderNotaItemsForm()"></td>
+      <td><input type="number" value="${it.harga}" placeholder="0" style="width:90px" oninput="notaItems[${i}].harga=this.value;updatePreview();renderNotaItemsForm()"></td>
+      <td style="text-align:right;font-weight:600;font-size:11px;white-space:nowrap">${fmt(jumlah)}</td>
       <td><button class="btn-del-row" onclick="removeNotaRow(${i})">×</button></td>`;
     tb.appendChild(tr);
   });
@@ -136,7 +188,12 @@ function renderSJItemsForm() {
 function getV(id) { const el = document.getElementById(id); return el ? el.value : ''; }
 
 function getNotaSummary() {
-  const total = notaItems.reduce((s, it) => s + (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0), 0);
+  const total = notaItems.reduce((s, it) => {
+    const sub = it.type === 'tegel'
+      ? (parseFloat(it.m2) || 0) * (parseFloat(it.harga) || 0)
+      : (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
+    return s + sub;
+  }, 0);
   const dp = parseFmt(getV('nota-dp'));
   const ongkir = parseFmt(getV('nota-ongkir'));
   const kekurangan = total - dp + ongkir;
@@ -177,7 +234,9 @@ function buildNotaHTML() {
   let rows = '';
   for (let i = 0; i < minRows; i++) {
     const it = notaItems[i] || {};
-    const jumlah = (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
+    const jumlah = it.type === 'tegel'
+      ? (parseFloat(it.m2) || 0) * (parseFloat(it.harga) || 0)
+      : (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
     rows += `<tr>
       <td class="tc">${i + 1}</td>
       <td>${it.nama || ''}</td>
@@ -315,9 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSJItemsForm();
   switchTab('nota');
 
-  // Save nomor on change
-  document.getElementById('nota-nomor').addEventListener('input', e => saveCurrentNomor('nota_counter', e.target.value));
-  document.getElementById('sj-nomor').addEventListener('input', e => saveCurrentNomor('sj_counter', e.target.value));
+  // Save nomor on change (debounced for Supabase)
+  document.getElementById('nota-nomor').addEventListener('input', e => debounceSaveNomor('nota_counter', e.target.value));
+  document.getElementById('sj-nomor').addEventListener('input', e => debounceSaveNomor('sj_counter', e.target.value));
 
   // Live update all inputs
   document.querySelectorAll('#form-nota input, #form-nota textarea').forEach(el => {

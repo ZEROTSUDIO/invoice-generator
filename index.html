@@ -11,6 +11,7 @@
     />
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" type="image/png" href="favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <!-- ── HEADER ─────────────────────────────────────────── -->
@@ -53,8 +54,7 @@
                   <button
                     class="btn-sm"
                     onclick="
-                      generateNewNomor('nota_counter', 'NP', 'nota-nomor');
-                      updatePreview();
+                      generateNewNomor('nota_counter', 'NP', 'nota-nomor')
                     "
                   >
                     ↻ Baru
@@ -79,6 +79,7 @@
                 <thead>
                   <tr>
                     <th style="width: 22px">#</th>
+                    <th style="width: 80px">Tipe</th>
                     <th>Nama Barang</th>
                     <th style="width: 52px">PCs</th>
                     <th style="width: 52px">M2</th>
@@ -146,10 +147,7 @@
                   />
                   <button
                     class="btn-sm"
-                    onclick="
-                      generateNewNomor('sj_counter', 'SJ', 'sj-nomor');
-                      updatePreview();
-                    "
+                    onclick="generateNewNomor('sj_counter', 'SJ', 'sj-nomor')"
                   >
                     ↻ Baru
                   </button>
