@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nota Penjualan – Rapa Cement & GRC</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        background: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .page {
+        background: #fff;
+        width: 210mm;
+        min-height: 148mm;
+        padding: 8mm 8mm;
+        border: 1px solid #999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* ── HEADER ── */
+      .header {
+        display: grid;
+        grid-template-columns: 130px 1fr 1fr;
+        border: 1.5px solid #000;
+        border-bottom: none;
+      }
+
+      .header-logo {
+        border-right: 1.5px solid #000;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-logo img {
+        width: 110px;
+        height: auto;
+      }
+
+      .header-info {
+        padding: 6px 10px;
+        border-right: 1.5px solid #000;
+      }
+
+      .header-info .company-name {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+
+      .header-info p {
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .header-info a {
+        color: #0070c0;
+        text-decoration: underline;
+      }
+
+      .header-title {
+        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .header-title h1 {
+        font-size: 26px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: right;
+        line-height: 1.1;
+      }
+
+      /* ── LOCATION ROW ── */
+      .location-row {
+        display: grid;
+        grid-template-columns: 130px 1fr 1fr;
+        border: 1.5px solid #000;
+        border-bottom: none;
+      }
+
+      .location-row .cell {
+        border-right: 1.5px solid #000;
+        padding: 3px 8px;
+        font-size: 10px;
+      }
+
+      .location-row .cell:last-child {
+        border-right: none;
+      }
+
+      /* ── PO ROW ── */
+      .po-row {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        border: 1.5px solid #000;
+        border-bottom: none;
+      }
+
+      .po-row .cell {
+        border-right: 1.5px solid #000;
+        padding: 4px 8px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .po-row .cell:last-child {
+        border-right: none;
+      }
+
+      /* ── TABLE ── */
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1.5px solid #000;
+      }
+
+      .items-table th {
+        background: #fff;
+        border: 1px solid #555;
+        padding: 4px 6px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .items-table td {
+        border: 1px solid #bbb;
+        padding: 3px 6px;
+        font-size: 10px;
+        height: 18px;
+      }
+
+      .items-table td.center {
+        text-align: center;
+      }
+      .items-table td.right {
+        text-align: right;
+      }
+
+      /* ── FOOTER TABLE ── */
+      .footer-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1.5px solid #000;
+        border-top: none;
+      }
+
+      .footer-table td {
+        border: 1px solid #777;
+        padding: 3px 8px;
+        font-size: 10px;
+        height: 18px;
+      }
+
+      .footer-table .note-cell {
+        border: 1px solid #777;
+        padding: 4px 8px;
+        font-size: 10px;
+        vertical-align: top;
+      }
+
+      .footer-table .label-right {
+        font-weight: bold;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      /* ── SIGNATURE ROW ── */
+      .signature-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1.5px solid #000;
+        border-top: none;
+      }
+
+      .signature-row .sig-cell {
+        padding: 6px 8px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        min-height: 18px;
+      }
+
+      .signature-row .sig-cell:first-child {
+        border-right: 1.5px solid #000;
+      }
+
+      @media print {
+        body {
+          background: none;
+          padding: 0;
+        }
+        .page {
+          box-shadow: none;
+          border: none;
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-logo">
+          <img src="rapa-logo.png" alt="Rapa Cement & GRC Logo" />
+        </div>
+        <div class="header-info">
+          <p class="company-name">RAPA CEMENT &amp; GRC</p>
+          <p>Jl. Ngadiretno no. 33, Tamanagung,</p>
+          <p>Muntilan, Magelang 56413</p>
+          <p>Telp: 08112959125 / 082134567874</p>
+          <p>
+            Email:
+            <a href="mailto:rapastone33@gmail.com">rapastone33@gmail.com</a>
+          </p>
+        </div>
+        <div class="header-title">
+          <h1>NOTA<br />PENJUALAN</h1>
+        </div>
+      </div>
+
+      <!-- LOCATION ROW -->
+      <div class="location-row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell">Magelang</div>
+      </div>
+
+      <!-- PO ROW -->
+      <div class="po-row">
+        <div class="cell">NO. PO:</div>
+        <div class="cell"></div>
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 35px">NO</th>
+            <th>NAMA BARANG</th>
+            <th style="width: 40px">PCs</th>
+            <th style="width: 40px">M2</th>
+            <th style="width: 90px">HARGA</th>
+            <th style="width: 90px">JUMLAH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 10 baris kosong -->
+          <tr>
+            <td class="center">1</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">2</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">3</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">4</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">5</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">6</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">7</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">8</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">9</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+          <tr>
+            <td class="center">10</td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="right"></td>
+            <td class="right"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- FOOTER TABLE -->
+      <table class="footer-table">
+        <tr>
+          <td
+            class="note-cell"
+            rowspan="4"
+            style="width: 55%; vertical-align: middle"
+          >
+            <strong>Nb.</strong> Pembayaran via Bank/Giro/Cek sah bila uang
+            sudah diterima Perusahaan<br />
+            <strong>BCA A.N NURJAMAL a c :1040257477</strong>
+          </td>
+          <td class="label-right">Jumlah</td>
+          <td style="width: 100px; text-align: right"></td>
+        </tr>
+        <tr>
+          <td class="label-right">DP</td>
+          <td style="text-align: right"></td>
+        </tr>
+        <tr>
+          <td class="label-right">Ongkir</td>
+          <td style="text-align: right"></td>
+        </tr>
+        <tr>
+          <td class="label-right">Kekurangan</td>
+          <td style="text-align: right"></td>
+        </tr>
+      </table>
+
+      <!-- SIGNATURE ROW -->
+      <div class="signature-row">
+        <div class="sig-cell">CUSTOMER</div>
+        <div class="sig-cell">RAPA CAST STONE</div>
+      </div>
+    </div>
+  </body>
+</html>

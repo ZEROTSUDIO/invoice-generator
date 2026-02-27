@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Surat Jalan – Rapa Cement & GRC</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        background: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .page {
+        background: #fff;
+        width: 210mm;
+        min-height: 148mm;
+        padding: 8mm 8mm;
+        border: 1px solid #999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* ── HEADER ── */
+      .header {
+        display: grid;
+        grid-template-columns: 130px 1fr 1fr;
+        border: 1.5px solid #000;
+        border-bottom: none;
+      }
+
+      .header-logo {
+        border-right: 1.5px solid #000;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-logo img {
+        width: 110px;
+        height: auto;
+      }
+
+      .header-info {
+        padding: 6px 10px;
+        border-right: 1.5px solid #000;
+      }
+
+      .header-info .company-name {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+
+      .header-info p {
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .header-info a {
+        color: #0070c0;
+        text-decoration: underline;
+      }
+
+      .header-title {
+        padding: 6px 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .header-title h1 {
+        font-size: 26px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        line-height: 1.1;
+      }
+
+      .header-title .sj-number-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      /* ── SEPARATOR LINE ── */
+      .separator {
+        border: none;
+        border-top: 3px double #000;
+      }
+
+      /* ── INFO ROW ── */
+      .info-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1.5px solid #000;
+        border-top: none;
+      }
+
+      .info-left,
+      .info-right {
+        padding: 5px 8px;
+      }
+
+      .info-left {
+        border-right: 1.5px solid #000;
+      }
+
+      .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 2px;
+        font-size: 10px;
+      }
+
+      .info-label {
+        font-weight: bold;
+        white-space: nowrap;
+        min-width: 70px;
+      }
+
+      .info-value {
+        flex: 1;
+        border-bottom: 1px solid #aaa;
+        min-width: 80px;
+        min-height: 14px;
+      }
+
+      /* ── ITEMS TABLE ── */
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1.5px solid #000;
+        border-top: none;
+      }
+
+      .items-table th {
+        background: #fff;
+        border: 1px solid #555;
+        padding: 4px 6px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .items-table td {
+        border: 1px solid #ccc;
+        padding: 3px 6px;
+        font-size: 10px;
+        height: 18px;
+      }
+
+      .items-table td.center {
+        text-align: center;
+      }
+      .items-table .notes-cell {
+        text-align: center;
+        vertical-align: middle;
+        font-size: 11px;
+        border: 1px solid #555;
+        color: #555;
+      }
+
+      /* ── RECEIVE NOTE ── */
+      .receive-note {
+        border: 1.5px solid #000;
+        border-top: none;
+        padding: 5px 8px;
+        font-size: 10px;
+        font-style: italic;
+      }
+
+      /* ── SIGNATURE SECTION ── */
+      .signature-section {
+        border: 1.5px solid #000;
+        border-top: none;
+      }
+
+      .sig-header-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .sig-header-row .sig-title {
+        padding: 5px 8px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 10px;
+        border-bottom: 1px solid #aaa;
+      }
+
+      .sig-header-row .sig-title:not(:last-child) {
+        border-right: 1px solid #aaa;
+      }
+
+      .sig-space-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .sig-space-row .sig-space {
+        height: 35px;
+        border-bottom: 1px solid #aaa;
+      }
+
+      .sig-space-row .sig-space:not(:last-child) {
+        border-right: 1px solid #aaa;
+      }
+
+      .sig-bracket-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .sig-bracket-row .sig-bracket {
+        padding: 3px 8px;
+        font-size: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .sig-bracket-row .sig-bracket:not(:last-child) {
+        border-right: 1px solid #aaa;
+      }
+
+      .sig-date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        border-top: 1px solid #aaa;
+      }
+
+      .sig-date-row .sig-date {
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .sig-date-row .sig-date:not(:last-child) {
+        border-right: 1px solid #aaa;
+      }
+
+      .sig-date-underline {
+        flex: 1;
+        border-bottom: 1px solid #555;
+        min-height: 14px;
+      }
+
+      @media print {
+        body {
+          background: none;
+          padding: 0;
+        }
+        .page {
+          box-shadow: none;
+          border: none;
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-logo">
+          <img src="rapa-logo.png" alt="Rapa Cement & GRC Logo" />
+        </div>
+        <div class="header-info">
+          <p class="company-name">RAPA CEMENT &amp; GRC</p>
+          <p>Jl. Ngadiretno no. 33, Tamanagung,</p>
+          <p>Muntilan, Magelang 56413</p>
+          <p>Telp: 08112959125 / 082134567874</p>
+          <p>
+            Email:
+            <a href="mailto:rapastone33@gmail.com">rapastone33@gmail.com</a>
+          </p>
+        </div>
+        <div class="header-title">
+          <h1>SURAT JALAN</h1>
+          <div class="sj-number-row">
+            <span>NO :</span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOUBLE LINE SEPARATOR -->
+      <div style="border: 1.5px solid #000; border-top: none">
+        <hr style="border: none; border-top: 1.5px solid #000; margin: 2px 0" />
+      </div>
+
+      <!-- INFO SECTION -->
+      <div class="info-section">
+        <div class="info-left">
+          <div class="info-row">
+            <span class="info-label">No Surat:</span>
+            <span class="info-value"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tanggal</span>
+            <span class="info-value"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">No. Po</span>
+            <span class="info-value"></span>
+          </div>
+        </div>
+        <div class="info-right">
+          <div class="info-row">
+            <span class="info-label">Kepada Yth:</span>
+            <span class="info-value">{{CUSTOMER_NAME}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 30px">No</th>
+            <th style="width: 55px">Kode</th>
+            <th>Nama Barang</th>
+            <th style="width: 40px">Qty</th>
+            <th style="width: 50px">Satuan</th>
+            <th style="width: 170px">Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="center">1</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td
+              class="notes-cell"
+              rowspan="10"
+              style="font-style: italic; color: #aaa"
+            >
+              {{NOTES}}
+            </td>
+          </tr>
+          <tr>
+            <td class="center">2</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">3</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">4</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">5</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">6</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">7</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">8</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">9</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td class="center">10</td>
+            <td></td>
+            <td></td>
+            <td class="center"></td>
+            <td class="center"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- RECEIVE NOTE -->
+      <div class="receive-note">Barang diterima dengan kondisi baik</div>
+
+      <!-- SIGNATURE SECTION -->
+      <div class="signature-section">
+        <div class="sig-header-row">
+          <div class="sig-title">Dibuat Oleh</div>
+          <div class="sig-title">Dikirim Oleh</div>
+          <div class="sig-title">Diterima Oleh</div>
+        </div>
+        <div class="sig-space-row">
+          <div class="sig-space"></div>
+          <div class="sig-space"></div>
+          <div class="sig-space"></div>
+        </div>
+        <div class="sig-bracket-row">
+          <div class="sig-bracket"><span>(</span><span>)</span></div>
+          <div class="sig-bracket"><span>(</span><span>)</span></div>
+          <div class="sig-bracket"><span>(</span><span>)</span></div>
+        </div>
+        <div class="sig-date-row">
+          <div class="sig-date">
+            <span>Tanggal:</span><span class="sig-date-underline"></span>
+          </div>
+          <div class="sig-date">
+            <span>Tanggal:</span><span class="sig-date-underline"></span>
+          </div>
+          <div class="sig-date">
+            <span>Tanggal:</span><span class="sig-date-underline"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
