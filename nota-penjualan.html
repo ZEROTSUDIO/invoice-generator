@@ -33,12 +33,11 @@
       .header {
         display: grid;
         grid-template-columns: 130px 1fr 1fr;
-        border: 1.5px solid #000;
-        border-bottom: none;
+        border-bottom: 2px solid #000;
+        margin-bottom: 6px;
       }
 
       .header-logo {
-        border-right: 1.5px solid #000;
         padding: 6px 8px;
         display: flex;
         align-items: center;
@@ -52,7 +51,6 @@
 
       .header-info {
         padding: 6px 10px;
-        border-right: 1.5px solid #000;
       }
 
       .header-info .company-name {
@@ -91,37 +89,24 @@
       .location-row {
         display: grid;
         grid-template-columns: 130px 1fr 1fr;
-        border: 1.5px solid #000;
-        border-bottom: none;
       }
 
       .location-row .cell {
-        border-right: 1.5px solid #000;
         padding: 3px 8px;
         font-size: 10px;
-      }
-
-      .location-row .cell:last-child {
-        border-right: none;
       }
 
       /* ── PO ROW ── */
       .po-row {
         display: grid;
         grid-template-columns: 130px 1fr;
-        border: 1.5px solid #000;
-        border-bottom: none;
+        margin-bottom: 6px;
       }
 
       .po-row .cell {
-        border-right: 1.5px solid #000;
         padding: 4px 8px;
         font-size: 10px;
         font-weight: bold;
-      }
-
-      .po-row .cell:last-child {
-        border-right: none;
       }
 
       /* ── TABLE ── */
@@ -131,9 +116,13 @@
         border: 1.5px solid #000;
       }
 
+      .items-table th,
+      .items-table td {
+        border: 1.5px solid #000;
+      }
+
       .items-table th {
         background: #fff;
-        border: 1px solid #555;
         padding: 4px 6px;
         text-align: center;
         font-size: 10px;
@@ -142,7 +131,6 @@
       }
 
       .items-table td {
-        border: 1px solid #bbb;
         padding: 3px 6px;
         font-size: 10px;
         height: 18px;
@@ -158,20 +146,18 @@
       /* ── FOOTER TABLE ── */
       .footer-table {
         width: 100%;
-        border-collapse: collapse;
         border: 1.5px solid #000;
-        border-top: none;
+        border-collapse: collapse;
       }
 
       .footer-table td {
-        border: 1px solid #777;
+        border: 1.5px solid #000;
         padding: 3px 8px;
         font-size: 10px;
         height: 18px;
       }
 
       .footer-table .note-cell {
-        border: 1px solid #777;
         padding: 4px 8px;
         font-size: 10px;
         vertical-align: top;
@@ -187,8 +173,7 @@
       .signature-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        border: 1.5px solid #000;
-        border-top: none;
+        margin-top: 6px;
       }
 
       .signature-row .sig-cell {
@@ -198,10 +183,6 @@
         font-weight: bold;
         text-transform: uppercase;
         min-height: 18px;
-      }
-
-      .signature-row .sig-cell:first-child {
-        border-right: 1.5px solid #000;
       }
 
       @media print {
@@ -355,22 +336,22 @@
           <td
             class="note-cell"
             rowspan="4"
-            style="width: 55%; vertical-align: middle"
+            style="width: 75.4%; vertical-align: middle"
           >
             <strong>Nb.</strong> Pembayaran via Bank/Giro/Cek sah bila uang
             sudah diterima Perusahaan<br />
             <strong>BCA A.N NURJAMAL a c :1040257477</strong>
           </td>
           <td class="label-right">Jumlah</td>
-          <td style="width: 100px; text-align: right"></td>
+          <td style="width: 12.3%; text-align: right"></td>
         </tr>
         <tr>
           <td class="label-right">DP</td>
-          <td style="text-align: right"></td>
+          <td style="width: 12.3%; text-align: right"></td>
         </tr>
         <tr>
           <td class="label-right">Ongkir</td>
-          <td style="text-align: right"></td>
+          <td style="width: 12.3%; text-align: right"></td>
         </tr>
         <tr>
           <td class="label-right">Kekurangan</td>

@@ -33,12 +33,11 @@
       .header {
         display: grid;
         grid-template-columns: 130px 1fr 1fr;
-        border: 1.5px solid #000;
-        border-bottom: none;
+        border-bottom: 2px solid #000;
+        margin-bottom: 6px;
       }
 
       .header-logo {
-        border-right: 1.5px solid #000;
         padding: 6px 8px;
         display: flex;
         align-items: center;
@@ -52,7 +51,6 @@
 
       .header-info {
         padding: 6px 10px;
-        border-right: 1.5px solid #000;
       }
 
       .header-info .company-name {
@@ -106,17 +104,12 @@
       .info-section {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        border: 1.5px solid #000;
-        border-top: none;
+        margin-bottom: 6px;
       }
 
       .info-left,
       .info-right {
         padding: 5px 8px;
-      }
-
-      .info-left {
-        border-right: 1.5px solid #000;
       }
 
       .info-row {
@@ -135,7 +128,6 @@
 
       .info-value {
         flex: 1;
-        border-bottom: 1px solid #aaa;
         min-width: 80px;
         min-height: 14px;
       }
@@ -145,12 +137,15 @@
         width: 100%;
         border-collapse: collapse;
         border: 1.5px solid #000;
-        border-top: none;
+      }
+
+      .items-table th,
+      .items-table td {
+        border: 1.5px solid #000;
       }
 
       .items-table th {
         background: #fff;
-        border: 1px solid #555;
         padding: 4px 6px;
         text-align: center;
         font-size: 10px;
@@ -158,7 +153,6 @@
       }
 
       .items-table td {
-        border: 1px solid #ccc;
         padding: 3px 6px;
         font-size: 10px;
         height: 18px;
@@ -177,17 +171,15 @@
 
       /* ── RECEIVE NOTE ── */
       .receive-note {
-        border: 1.5px solid #000;
-        border-top: none;
         padding: 5px 8px;
         font-size: 10px;
         font-style: italic;
+        margin-top: 6px;
       }
 
       /* ── SIGNATURE SECTION ── */
       .signature-section {
-        border: 1.5px solid #000;
-        border-top: none;
+        margin-top: 4px;
       }
 
       .sig-header-row {
@@ -200,11 +192,6 @@
         text-align: center;
         font-weight: bold;
         font-size: 10px;
-        border-bottom: 1px solid #aaa;
-      }
-
-      .sig-header-row .sig-title:not(:last-child) {
-        border-right: 1px solid #aaa;
       }
 
       .sig-space-row {
@@ -214,11 +201,6 @@
 
       .sig-space-row .sig-space {
         height: 35px;
-        border-bottom: 1px solid #aaa;
-      }
-
-      .sig-space-row .sig-space:not(:last-child) {
-        border-right: 1px solid #aaa;
       }
 
       .sig-bracket-row {
@@ -233,14 +215,9 @@
         justify-content: space-between;
       }
 
-      .sig-bracket-row .sig-bracket:not(:last-child) {
-        border-right: 1px solid #aaa;
-      }
-
       .sig-date-row {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        border-top: 1px solid #aaa;
       }
 
       .sig-date-row .sig-date {
@@ -252,13 +229,8 @@
         gap: 4px;
       }
 
-      .sig-date-row .sig-date:not(:last-child) {
-        border-right: 1px solid #aaa;
-      }
-
       .sig-date-underline {
         flex: 1;
-        border-bottom: 1px solid #555;
         min-height: 14px;
       }
 
@@ -301,10 +273,7 @@
         </div>
       </div>
 
-      <!-- DOUBLE LINE SEPARATOR -->
-      <div style="border: 1.5px solid #000; border-top: none">
-        <hr style="border: none; border-top: 1.5px solid #000; margin: 2px 0" />
-      </div>
+      <!-- SPACER -->
 
       <!-- INFO SECTION -->
       <div class="info-section">
@@ -325,7 +294,7 @@
         <div class="info-right">
           <div class="info-row">
             <span class="info-label">Kepada Yth:</span>
-            <span class="info-value">{{CUSTOMER_NAME}}</span>
+            <span class="info-value"></span>
           </div>
         </div>
       </div>
@@ -353,9 +322,7 @@
               class="notes-cell"
               rowspan="10"
               style="font-style: italic; color: #aaa"
-            >
-              {{NOTES}}
-            </td>
+            ></td>
           </tr>
           <tr>
             <td class="center">2</td>
