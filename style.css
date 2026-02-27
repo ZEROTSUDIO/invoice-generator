@@ -348,7 +348,14 @@ select:focus {
   align-items: center;
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: calc(100vh - 56px);
+}
+
+/* Scale-to-fit wrapper */
+.doc-scale-wrapper {
+  transform-origin: top center;
+  width: 210mm;
 }
 
 .preview-label {

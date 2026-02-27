@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator Nota & Surat Jalan – Rapa Cement & GRC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ─────────────────────────────────────────── -->
+    <header class="app-header">
+      <img src="rapa-logo.png" alt="Logo" />
+      <h1>Generator Dokumen <span>Rapa Cement &amp; GRC</span></h1>
+    </header>
+
+    <!-- ── MAIN BODY ──────────────────────────────────────── -->
+    <div class="app-body">
+      <!-- ════ LEFT: FORM PANEL ════ -->
+      <div class="panel-form">
+        <div class="panel-form-inner">
+          <!-- Tab -->
+          <div class="tab-group">
+            <button
+              class="tab-btn active"
+              data-tab="nota"
+              onclick="switchTab('nota')"
+            >
+              📄 Nota Penjualan
+            </button>
+            <button class="tab-btn" data-tab="sj" onclick="switchTab('sj')">
+              🚚 Surat Jalan
+            </button>
+          </div>
+
+          <!-- ───────── FORM NOTA ───────── -->
+          <div id="form-nota">
+            <p class="section-title">Info Dokumen</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label>No. Nota</label>
+                <div class="nomor-row">
+                  <input
+                    type="text"
+                    id="nota-nomor"
+                    placeholder="NP-202502-001"
+                  />
+                  <button
+                    class="btn-sm"
+                    onclick="
+                      generateNewNomor('nota_counter', 'NP', 'nota-nomor');
+                      updatePreview();
+                    "
+                  >
+                    ↻ Baru
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" id="nota-tgl" />
+              </div>
+              <div class="form-group">
+                <label>No. PO</label>
+                <input type="text" id="nota-po" placeholder="PO-xxx" />
+              </div>
+            </div>
+
+            <p class="section-title">Daftar Barang</p>
+            <div class="items-form-wrap">
+              <table class="items-form-table">
+                <thead>
+                  <tr>
+                    <th style="width: 22px">#</th>
+                    <th>Nama Barang</th>
+                    <th style="width: 52px">PCs</th>
+                    <th style="width: 52px">M2</th>
+                    <th style="width: 90px">Harga (Rp)</th>
+                    <th style="width: 80px">Jumlah</th>
+                    <th style="width: 24px"></th>
+                  </tr>
+                </thead>
+                <tbody id="nota-items-tbody"></tbody>
+              </table>
+            </div>
+            <button class="btn-add-row" onclick="addNotaRow()">
+              + Tambah Barang
+            </button>
+
+            <p class="section-title">Pembayaran</p>
+            <div class="summary-row">
+              <label>DP (Rp)</label>
+              <input
+                type="text"
+                id="nota-dp"
+                placeholder="0"
+                style="width: 140px; text-align: right"
+                oninput="updatePreview()"
+              />
+            </div>
+            <div class="summary-row">
+              <label>Ongkir (Rp)</label>
+              <input
+                type="text"
+                id="nota-ongkir"
+                placeholder="0"
+                style="width: 140px; text-align: right"
+                oninput="updatePreview()"
+              />
+            </div>
+            <div class="summary-row total">
+              <label>Kekurangan</label>
+              <input
+                type="text"
+                id="nota-kekurangan"
+                placeholder="—"
+                style="
+                  width: 140px;
+                  text-align: right;
+                  font-weight: 700;
+                  color: #1a5fb4;
+                "
+                readonly
+              />
+            </div>
+          </div>
+
+          <!-- ───────── FORM SURAT JALAN ───────── -->
+          <div id="form-sj" style="display: none">
+            <p class="section-title">Info Dokumen</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label>No. Surat Jalan</label>
+                <div class="nomor-row">
+                  <input
+                    type="text"
+                    id="sj-nomor"
+                    placeholder="SJ-202502-001"
+                  />
+                  <button
+                    class="btn-sm"
+                    onclick="
+                      generateNewNomor('sj_counter', 'SJ', 'sj-nomor');
+                      updatePreview();
+                    "
+                  >
+                    ↻ Baru
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>No. Surat</label>
+                <input
+                  type="text"
+                  id="sj-nosurat"
+                  placeholder="xxx/RCG/II/2025"
+                />
+              </div>
+              <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" id="sj-tgl" />
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>No. PO</label>
+                <input type="text" id="sj-po" placeholder="PO-xxx" />
+              </div>
+              <div class="form-group">
+                <label>Kepada Yth.</label>
+                <input
+                  type="text"
+                  id="sj-kepada"
+                  placeholder="Nama customer / toko"
+                />
+              </div>
+            </div>
+
+            <p class="section-title">Daftar Barang</p>
+            <div class="items-form-wrap">
+              <table class="items-form-table">
+                <thead>
+                  <tr>
+                    <th style="width: 22px">#</th>
+                    <th style="width: 60px">Kode</th>
+                    <th>Nama Barang</th>
+                    <th style="width: 48px">Qty</th>
+                    <th style="width: 52px">Satuan</th>
+                    <th style="width: 24px"></th>
+                  </tr>
+                </thead>
+                <tbody id="sj-items-tbody"></tbody>
+              </table>
+            </div>
+            <button class="btn-add-row" onclick="addSJRow()">
+              + Tambah Barang
+            </button>
+
+            <p class="section-title">Keterangan</p>
+            <div class="form-group">
+              <label>Catatan Pengiriman</label>
+              <textarea
+                id="sj-catatan"
+                rows="3"
+                placeholder="Keterangan tambahan / catatan pengiriman..."
+                style="resize: vertical"
+                oninput="updatePreview()"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- /panel-form-inner -->
+
+        <!-- ACTION BAR -->
+        <div class="action-bar">
+          <button class="btn-primary" onclick="window.print()">
+            🖨️ Print / Save PDF
+          </button>
+          <button class="btn-secondary" onclick="resetForm()">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- ════ RIGHT: PREVIEW PANEL ════ -->
+      <div class="panel-preview" id="panel-preview">
+        <p class="preview-label">👁 Preview Dokumen</p>
+        <div id="doc-scale-wrapper">
+          <div id="preview-container"></div>
+        </div>
+      </div>
+    </div>
+    <!-- /app-body -->
+
+    <script src="script.js"></script>
+    <script>
+      function applyDocScale() {
+        const wrapper = document.getElementById("doc-scale-wrapper");
+        const panel = document.getElementById("panel-preview");
+        if (!wrapper || !panel) return;
+        const panelW = panel.clientWidth - 48; // 24px padding each side
+        const docW = wrapper.scrollWidth; // 210mm in px
+        const scale = Math.min(1, panelW / docW);
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.marginBottom = `${wrapper.scrollHeight * scale - wrapper.scrollHeight}px`;
+      }
+      window.addEventListener("resize", applyDocScale);
+      // Also re-apply after each preview update
+      const _origUpdate = window.updatePreview;
+      window.updatePreview = function () {
+        _origUpdate();
+        setTimeout(applyDocScale, 10);
+      };
+      document.addEventListener("DOMContentLoaded", () =>
+        setTimeout(applyDocScale, 50),
+      );
+    </script>
+  </body>
+</html>
