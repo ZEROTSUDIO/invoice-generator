@@ -64,9 +64,21 @@ async function initNomor(key, prefix, inputId) {
 }
 
 async function saveCurrentNomor(key, val) {
+  // val format usually: PREFIX-YYYYMM-001
+  const parts = val.split('-');
+  const seqPart = parts[parts.length - 1];
+  const seqNum = parseInt(seqPart) || 0;
+  const ym = parts.length > 1 ? parts[parts.length - 2] : getYYYYMM();
+
+  const updateData = { current_val: val };
+  if (seqNum > 0) {
+    updateData.seq = seqNum;
+    updateData.ym = ym;
+  }
+
   await supabaseClient
     .from('document_sequences')
-    .update({ current_val: val })
+    .update(updateData)
     .eq('id', key);
 }
 
@@ -98,6 +110,62 @@ async function generateNewNomor(key, prefix, inputId) {
       .update({ ym: ym, seq: nextSeq, current_val: nomor })
       .eq('id', key);
 
+    inputEl.value = nomor;
+    updatePreview();
+  }
+}
+
+async function resetSequence(key, prefix, inputId) {
+  if (!confirm('Yakin ingin reset nomor ke 001 untuk bulan ini?')) return;
+
+  const inputEl = document.getElementById(inputId);
+  inputEl.value = 'Resetting...';
+
+  const ym = getYYYYMM();
+  const nomor = `${prefix}-${ym}-001`;
+
+  const { error } = await supabaseClient
+    .from('document_sequences')
+    .update({ ym: ym, seq: 1, current_val: nomor })
+    .eq('id', key);
+
+  if (error) {
+    alert('Gagal reset: ' + error.message);
+    initNomor(key, prefix, inputId);
+  } else {
+    inputEl.value = nomor;
+    updatePreview();
+  }
+}
+
+async function decrementSequence(key, prefix, inputId) {
+  const inputEl = document.getElementById(inputId);
+  const currentVal = inputEl.value;
+
+  // Extract current seq
+  const parts = currentVal.split('-');
+  let seqNum = parseInt(parts[parts.length - 1]) || 0;
+
+  if (seqNum <= 1) {
+    alert('Sudah di nomor paling awal (001).');
+    return;
+  }
+
+  seqNum--;
+  const ym = getYYYYMM();
+  const nomor = `${prefix}-${ym}-${String(seqNum).padStart(3, '0')}`;
+
+  inputEl.value = 'Rolling back...';
+
+  const { error } = await supabaseClient
+    .from('document_sequences')
+    .update({ ym: ym, seq: seqNum, current_val: nomor })
+    .eq('id', key);
+
+  if (error) {
+    alert('Gagal undo: ' + error.message);
+    initNomor(key, prefix, inputId);
+  } else {
     inputEl.value = nomor;
     updatePreview();
   }
@@ -278,15 +346,15 @@ function buildNotaHTML() {
   </table>
   <table class="nota-footer-table">
     <tr>
-      <td rowspan="4" style="width:75.5%;vertical-align:middle;font-size:10px">
+      <td rowspan="4" style="vertical-align:middle;font-size:10px">
         <strong>Nb.</strong> Pembayaran via Bank/Giro/Cek sah bila uang sudah diterima Perusahaan<br>
         <strong>BCA A.N NURJAMAL a c :1040257477</strong>
       </td>
-      <td class="lbl">Jumlah</td><td style="width:12.25%; text-align:right">${fmt(total)}</td>
+      <td class="lbl" style="width:90px">Jumlah</td><td style="width:90px; text-align:right">${fmt(total)}</td>
     </tr>
-    <tr><td class="lbl">DP</td><td style="width:12.25%; text-align:right">${fmt(dp)}</td></tr>
-    <tr><td class="lbl">Ongkir</td><td style="width:12.25%; text-align:right">${fmt(ongkir)}</td></tr>
-    <tr><td class="lbl">Kekurangan</td><td style="width:12.25%; text-align:right;font-weight:bold">${total ? fmt(kekurangan) : ''}</td></tr>
+    <tr><td class="lbl">DP</td><td style="text-align:right">${fmt(dp)}</td></tr>
+    <tr><td class="lbl">Ongkir</td><td style="text-align:right">${fmt(ongkir)}</td></tr>
+    <tr><td class="lbl">Kekurangan</td><td style="text-align:right;font-weight:bold">${total ? fmt(kekurangan) : ''}</td></tr>
   </table>
   <div class="nota-sig">
     <div>CUSTOMER</div>
@@ -395,4 +463,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#form-sj input, #form-sj textarea').forEach(el => {
     el.addEventListener('input', updatePreview);
   });
+
+  // Auth Logic
+  const authOverlay = document.getElementById('auth-overlay');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+
+  async function checkSession() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      authOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    } else {
+      authOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      authOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    } else if (event === 'SIGNED_OUT') {
+      authOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.style.display = 'none';
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-pwd').value;
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      loginError.innerText = error.message;
+      loginError.style.display = 'block';
+    }
+  });
+
+  window.handleLogout = async function () {
+    await supabaseClient.auth.signOut();
+  };
+
+  checkSession();
 });

@@ -19,6 +19,11 @@
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.07);
 }
 
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
 body {
   font-family: "Inter", Arial, sans-serif;
   font-size: 13px;
@@ -540,12 +545,12 @@ select:focus {
 }
 .sj-sig-col .sig-title {
   font-weight: bold;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1.5px solid #000;
   padding-bottom: 3px;
 }
 .sj-sig-col .sig-space {
   height: 32px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1.5px solid #000;
 }
 .sj-sig-col .sig-bracket {
   display: flex;
@@ -562,7 +567,7 @@ select:focus {
 }
 .sj-sig-col .sig-date span.line {
   flex: 1;
-  border-bottom: 1px solid #aaa;
+  border-bottom: 1px solid #000;
   height: 12px;
 }
 
@@ -605,10 +610,6 @@ select:focus {
     box-shadow: none !important;
     width: 100% !important;
     padding: 6mm !important;
-  }
-  @page {
-    size: A4 landscape;
-    margin: 8mm;
   }
 }
 
@@ -727,4 +728,79 @@ select:focus {
     padding: 10px 16px;
     flex-wrap: wrap;
   }
+}
+
+/* ─── AUTH OVERLAY ─────────────────────────────────────── */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--blue);
+  background: linear-gradient(135deg, var(--blue) 0%, #0d3b75 100%);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.auth-logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.auth-card h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--blue);
+}
+
+.auth-card p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.btn-logout {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+}
+
+.btn-danger-outline {
+  color: var(--danger);
+  border-color: #fee4e2;
+}
+
+.btn-danger-outline:hover {
+  background: #fef3f2;
+  border-color: var(--danger);
+  color: var(--danger);
 }
