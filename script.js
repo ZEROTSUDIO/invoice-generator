@@ -141,6 +141,16 @@ function removeSJRow(i) {
   if (sjItems.length > 1) { sjItems.splice(i, 1); renderSJItemsForm(); updatePreview(); }
 }
 
+function updateNotaFormJumlah(i) {
+  const it = notaItems[i];
+  if (!it) return;
+  const jumlah = it.type === 'tegel'
+    ? (parseFloat(it.m2) || 0) * (parseFloat(it.harga) || 0)
+    : (parseFloat(it.pcs) || 0) * (parseFloat(it.harga) || 0);
+  const el = document.getElementById(`nota-jumlah-${i}`);
+  if (el) el.innerText = fmt(jumlah);
+}
+
 function renderNotaItemsForm() {
   const tb = document.getElementById('nota-items-tbody');
   tb.innerHTML = '';
@@ -153,16 +163,16 @@ function renderNotaItemsForm() {
     tr.innerHTML = `
       <td style="text-align:center;color:#888;font-weight:600">${i + 1}</td>
       <td>
-        <select onchange="notaItems[${i}].type=this.value;updatePreview();renderNotaItemsForm()" style="width:75px;font-size:11px">
+        <select onchange="notaItems[${i}].type=this.value;updatePreview();updateNotaFormJumlah(${i})" style="width:75px;font-size:11px">
           <option value="pcs" ${it.type === 'pcs' ? 'selected' : ''}>Lainnya</option>
           <option value="tegel" ${it.type === 'tegel' ? 'selected' : ''}>Tegel</option>
         </select>
       </td>
       <td><input type="text" value="${it.nama}" placeholder="Nama barang" oninput="notaItems[${i}].nama=this.value;updatePreview()"></td>
-      <td><input type="number" value="${it.pcs}" placeholder="0" style="width:52px" oninput="notaItems[${i}].pcs=this.value;updatePreview();renderNotaItemsForm()"></td>
-      <td><input type="number" value="${it.m2}" placeholder="0" style="width:52px" oninput="notaItems[${i}].m2=this.value;updatePreview();renderNotaItemsForm()"></td>
-      <td><input type="number" value="${it.harga}" placeholder="0" style="width:90px" oninput="notaItems[${i}].harga=this.value;updatePreview();renderNotaItemsForm()"></td>
-      <td style="text-align:right;font-weight:600;font-size:11px;white-space:nowrap">${fmt(jumlah)}</td>
+      <td><input type="number" value="${it.pcs}" placeholder="0" style="width:52px" oninput="notaItems[${i}].pcs=this.value;updatePreview();updateNotaFormJumlah(${i})"></td>
+      <td><input type="number" value="${it.m2}" placeholder="0" style="width:52px" oninput="notaItems[${i}].m2=this.value;updatePreview();updateNotaFormJumlah(${i})"></td>
+      <td><input type="number" value="${it.harga}" placeholder="0" style="width:90px" oninput="notaItems[${i}].harga=this.value;updatePreview();updateNotaFormJumlah(${i})"></td>
+      <td id="nota-jumlah-${i}" style="text-align:right;font-weight:600;font-size:11px;white-space:nowrap">${fmt(jumlah)}</td>
       <td><button class="btn-del-row" onclick="removeNotaRow(${i})">×</button></td>`;
     tb.appendChild(tr);
   });
