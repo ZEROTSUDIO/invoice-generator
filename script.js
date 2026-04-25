@@ -1,9 +1,28 @@
-// ─── CONSTANTS ───────────────────────────────────────────
-const LOGO_SRC = 'rapa-logo.png';
-const CO_NAME = 'RAPA CEMENT &amp; GRC';
-const CO_ADDR = 'Jl. Ngadiretno no. 33, Tamanagung, Muntilan, Magelang 56413';
-const CO_TELP = 'Telp: 08112959125 / 082134567874';
-const CO_EMAIL = 'rapastone33@gmail.com';
+// ─── CONSTANTS & CONFIGURATION ──────────────────────────────
+const ADMIN_CONFIG = {
+  logo: 'rapa-logo.png',
+  name: 'RAPA CEMENT & GRC',
+  shortName: 'Rapa Cement & GRC',
+  addr: 'Jl. Ngadiretno no. 33, Tamanagung, Muntilan, Magelang 56413',
+  telp: 'Telp: 08112959125 / 082134567874',
+  email: 'rapastone33@gmail.com',
+  bank: 'BCA A.N NURJAMAL a c :1040257477',
+  signatureName: 'RAPA CAST STONE'
+};
+
+const GUEST_CONFIG = {
+  logo: 'random.png', // Same logo as admin for consistency, or could be different
+  name: 'BINTANG JAYA MATERIAL',
+  shortName: 'Bintang Jaya Material',
+  addr: 'Jl. Contoh Fiktif No. 99, Jakarta Selatan 12345',
+  telp: 'Telp: 081234567890',
+  email: 'hello@bintangmaterial.dummy',
+  bank: 'MANDIRI A.N BINTANG JAYA : 1234567890',
+  signatureName: 'BINTANG JAYA MATERIAL'
+};
+
+let currentConfig = ADMIN_CONFIG;
+
 
 // ─── STATE ───────────────────────────────────────────────
 let activeTab = 'nota';
@@ -335,12 +354,12 @@ function updatePreview() {
 function headerHTML() {
   return `
   <div class="doc-header">
-    <div class="doc-logo"><img src="${LOGO_SRC}" alt="Logo"/></div>
+    <div class="doc-logo"><img src="${currentConfig.logo}" alt="Logo"/></div>
     <div class="doc-info">
-      <p class="co-name"><strong>${CO_NAME}</strong></p>
-      <p>${CO_ADDR}</p>
-      <p>${CO_TELP}</p>
-      <p>Email: <a href="mailto:${CO_EMAIL}">${CO_EMAIL}</a></p>
+      <p class="co-name"><strong>${currentConfig.name}</strong></p>
+      <p>${currentConfig.addr}</p>
+      <p>${currentConfig.telp}</p>
+      <p>Email: <a href="mailto:${currentConfig.email}">${currentConfig.email}</a></p>
     </div>`;
 }
 
@@ -392,7 +411,7 @@ function buildNotaHTML() {
     <tr>
       <td rowspan="4" style="vertical-align:middle;font-size:10px">
         <strong>Nb.</strong> Pembayaran via Bank/Giro/Cek sah bila uang sudah diterima Perusahaan<br>
-        <strong>BCA A.N NURJAMAL a c :1040257477</strong>
+        <strong>${currentConfig.bank}</strong>
       </td>
       <td class="lbl" style="width:90px">Jumlah</td><td style="width:90px; text-align:right">${fmt(total)}</td>
     </tr>
@@ -402,7 +421,7 @@ function buildNotaHTML() {
   </table>
   <div class="nota-sig">
     <div>CUSTOMER</div>
-    <div>RAPA CAST STONE</div>
+    <div>${currentConfig.signatureName}</div>
   </div>
 </div>`;
 }
@@ -531,9 +550,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const authOverlay = document.getElementById('auth-overlay');
     const guestBadge = document.getElementById('guest-badge');
     const logoutBtn = document.getElementById('logout-btn');
+    const appLogo = document.getElementById('app-logo');
+    const appCompanyName = document.getElementById('app-company-name');
 
     if (mode === 'admin') {
       isGuest = false;
+      currentConfig = ADMIN_CONFIG;
       authOverlay.style.display = 'none';
       document.body.style.overflow = '';
       guestBadge.style.display = 'none';
@@ -541,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sessionStorage.removeItem('guestMode');
     } else if (mode === 'guest') {
       isGuest = true;
+      currentConfig = GUEST_CONFIG;
       authOverlay.style.display = 'none';
       document.body.style.overflow = '';
       guestBadge.style.display = 'block';
@@ -549,10 +572,17 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       showAuthOverlay(true);
     }
-    
+
+    // Update Header UI
+    if (appLogo) appLogo.src = currentConfig.logo;
+    if (appCompanyName) appCompanyName.innerText = currentConfig.shortName;
+
     // Refresh sequences based on mode
     initNomor('nota_counter', 'NP', 'nota-nomor');
     initNomor('sj_counter', 'SJ', 'sj-nomor');
+
+    // Force preview update to apply config changes
+    updatePreview();
   }
 
   function showAuthOverlay(show) {
@@ -561,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = show ? 'hidden' : '';
   }
 
-  window.continueAsGuest = function() {
+  window.continueAsGuest = function () {
     setUIMode('guest');
   };
 
