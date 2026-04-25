@@ -9,6 +9,7 @@ const CO_EMAIL = 'rapastone33@gmail.com';
 let activeTab = 'nota';
 let notaItems = [newItem()];
 let sjItems = [newSJItem()];
+let isGuest = false;
 
 function newItem() { return { type: 'pcs', nama: '', pcs: '', m2: '', harga: '' }; }
 function newSJItem() { return { kode: '', nama: '', qty: '', satuan: '' }; }
@@ -29,11 +30,20 @@ async function initNomor(key, prefix, inputId) {
   const inputEl = document.getElementById(inputId);
   inputEl.value = 'Loading...';
 
-  const { data, error } = await supabaseClient
-    .from('document_sequences')
-    .select('*')
-    .eq('id', key)
-    .single();
+  let data, error;
+
+  if (isGuest) {
+    const localData = localStorage.getItem(`seq_${key}`);
+    data = localData ? JSON.parse(localData) : null;
+  } else {
+    const res = await supabaseClient
+      .from('document_sequences')
+      .select('*')
+      .eq('id', key)
+      .single();
+    data = res.data;
+    error = res.error;
+  }
 
   if (error && error.code !== 'PGRST116') {
     console.error('Error fetching sequence:', error);
@@ -49,14 +59,21 @@ async function initNomor(key, prefix, inputId) {
       let nextSeq = data.ym === ym ? (data.seq || 0) : 0;
       nextSeq++;
       nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
-      await supabaseClient
-        .from('document_sequences')
-        .update({ ym: ym, seq: nextSeq, current_val: nomor })
-        .eq('id', key);
+
+      if (isGuest) {
+        localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: nextSeq, current_val: nomor }));
+      } else {
+        await supabaseClient
+          .from('document_sequences')
+          .update({ ym: ym, seq: nextSeq, current_val: nomor })
+          .eq('id', key);
+      }
     }
   } else {
-    // Fallback if row does not exist, though it should be created by the user manually
     nomor = `${prefix}-${ym}-001`;
+    if (isGuest) {
+      localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: 1, current_val: nomor }));
+    }
   }
 
   inputEl.value = nomor;
@@ -64,7 +81,6 @@ async function initNomor(key, prefix, inputId) {
 }
 
 async function saveCurrentNomor(key, val) {
-  // val format usually: PREFIX-YYYYMM-001
   const parts = val.split('-');
   const seqPart = parts[parts.length - 1];
   const seqNum = parseInt(seqPart) || 0;
@@ -76,10 +92,14 @@ async function saveCurrentNomor(key, val) {
     updateData.ym = ym;
   }
 
-  await supabaseClient
-    .from('document_sequences')
-    .update(updateData)
-    .eq('id', key);
+  if (isGuest) {
+    localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: seqNum, current_val: val }));
+  } else {
+    await supabaseClient
+      .from('document_sequences')
+      .update(updateData)
+      .eq('id', key);
+  }
 }
 
 let debounceTimer = {};
@@ -95,20 +115,33 @@ async function generateNewNomor(key, prefix, inputId) {
   inputEl.value = 'Generating...';
 
   const ym = getYYYYMM();
-  const { data } = await supabaseClient
-    .from('document_sequences')
-    .select('*')
-    .eq('id', key)
-    .single();
+  let data;
+
+  if (isGuest) {
+    const localData = localStorage.getItem(`seq_${key}`);
+    data = localData ? JSON.parse(localData) : { ym: ym, seq: 0 };
+  } else {
+    const res = await supabaseClient
+      .from('document_sequences')
+      .select('*')
+      .eq('id', key)
+      .single();
+    data = res.data;
+  }
 
   if (data) {
     let nextSeq = data.ym === ym ? (data.seq || 0) : 0;
     nextSeq++;
     const nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
-    await supabaseClient
-      .from('document_sequences')
-      .update({ ym: ym, seq: nextSeq, current_val: nomor })
-      .eq('id', key);
+
+    if (isGuest) {
+      localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: nextSeq, current_val: nomor }));
+    } else {
+      await supabaseClient
+        .from('document_sequences')
+        .update({ ym: ym, seq: nextSeq, current_val: nomor })
+        .eq('id', key);
+    }
 
     inputEl.value = nomor;
     updatePreview();
@@ -124,17 +157,23 @@ async function resetSequence(key, prefix, inputId) {
   const ym = getYYYYMM();
   const nomor = `${prefix}-${ym}-001`;
 
-  const { error } = await supabaseClient
-    .from('document_sequences')
-    .update({ ym: ym, seq: 1, current_val: nomor })
-    .eq('id', key);
-
-  if (error) {
-    alert('Gagal reset: ' + error.message);
-    initNomor(key, prefix, inputId);
-  } else {
+  if (isGuest) {
+    localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: 1, current_val: nomor }));
     inputEl.value = nomor;
     updatePreview();
+  } else {
+    const { error } = await supabaseClient
+      .from('document_sequences')
+      .update({ ym: ym, seq: 1, current_val: nomor })
+      .eq('id', key);
+
+    if (error) {
+      alert('Gagal reset: ' + error.message);
+      initNomor(key, prefix, inputId);
+    } else {
+      inputEl.value = nomor;
+      updatePreview();
+    }
   }
 }
 
@@ -142,7 +181,6 @@ async function decrementSequence(key, prefix, inputId) {
   const inputEl = document.getElementById(inputId);
   const currentVal = inputEl.value;
 
-  // Extract current seq
   const parts = currentVal.split('-');
   let seqNum = parseInt(parts[parts.length - 1]) || 0;
 
@@ -157,17 +195,23 @@ async function decrementSequence(key, prefix, inputId) {
 
   inputEl.value = 'Rolling back...';
 
-  const { error } = await supabaseClient
-    .from('document_sequences')
-    .update({ ym: ym, seq: seqNum, current_val: nomor })
-    .eq('id', key);
-
-  if (error) {
-    alert('Gagal undo: ' + error.message);
-    initNomor(key, prefix, inputId);
-  } else {
+  if (isGuest) {
+    localStorage.setItem(`seq_${key}`, JSON.stringify({ ym: ym, seq: seqNum, current_val: nomor }));
     inputEl.value = nomor;
     updatePreview();
+  } else {
+    const { error } = await supabaseClient
+      .from('document_sequences')
+      .update({ ym: ym, seq: seqNum, current_val: nomor })
+      .eq('id', key);
+
+    if (error) {
+      alert('Gagal undo: ' + error.message);
+      initNomor(key, prefix, inputId);
+    } else {
+      inputEl.value = nomor;
+      updatePreview();
+    }
   }
 }
 
@@ -472,21 +516,61 @@ document.addEventListener('DOMContentLoaded', () => {
   async function checkSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-      authOverlay.style.display = 'none';
-      document.body.style.overflow = '';
+      setUIMode('admin');
     } else {
-      authOverlay.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
+      // Check if guest mode was already active in this session
+      if (sessionStorage.getItem('guestMode') === 'true') {
+        setUIMode('guest');
+      } else {
+        showAuthOverlay(true);
+      }
     }
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
+  function setUIMode(mode) {
+    const authOverlay = document.getElementById('auth-overlay');
+    const guestBadge = document.getElementById('guest-badge');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (mode === 'admin') {
+      isGuest = false;
       authOverlay.style.display = 'none';
       document.body.style.overflow = '';
+      guestBadge.style.display = 'none';
+      logoutBtn.innerHTML = '🚪 Logout Admin';
+      sessionStorage.removeItem('guestMode');
+    } else if (mode === 'guest') {
+      isGuest = true;
+      authOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+      guestBadge.style.display = 'block';
+      logoutBtn.innerHTML = '🚪 Keluar Mode Tamu';
+      sessionStorage.setItem('guestMode', 'true');
+    } else {
+      showAuthOverlay(true);
+    }
+    
+    // Refresh sequences based on mode
+    initNomor('nota_counter', 'NP', 'nota-nomor');
+    initNomor('sj_counter', 'SJ', 'sj-nomor');
+  }
+
+  function showAuthOverlay(show) {
+    const authOverlay = document.getElementById('auth-overlay');
+    authOverlay.style.display = show ? 'flex' : 'none';
+    document.body.style.overflow = show ? 'hidden' : '';
+  }
+
+  window.continueAsGuest = function() {
+    setUIMode('guest');
+  };
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      setUIMode('admin');
     } else if (event === 'SIGNED_OUT') {
-      authOverlay.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
+      showAuthOverlay(true);
+      sessionStorage.removeItem('guestMode');
     }
   });
 
@@ -504,7 +588,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.handleLogout = async function () {
-    await supabaseClient.auth.signOut();
+    if (isGuest) {
+      sessionStorage.removeItem('guestMode');
+      location.reload(); // Quickest way to reset state
+    } else {
+      await supabaseClient.auth.signOut();
+    }
   };
 
   checkSession();

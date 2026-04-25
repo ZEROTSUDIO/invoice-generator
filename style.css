@@ -59,6 +59,17 @@ body {
   margin-left: 4px;
 }
 
+.guest-badge {
+  background: #f59e0b;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 .app-body {
   display: grid;
   grid-template-columns: 400px 1fr;
