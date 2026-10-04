@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generator Nota & Surat Jalan – Rapa Cement & GRC</title>
+    <title>Generator Invoice & Surat Jalan Universal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
@@ -17,9 +17,9 @@
     <!-- ── AUTH LOGIN OVERLAY ────────────────────────────── -->
     <div id="auth-overlay" class="auth-overlay">
       <div class="auth-card">
-        <img src="rapa-logo.png" alt="Logo" class="auth-logo" />
+        <img src="rapa-logo.png" alt="Logo" class="auth-logo" id="auth-logo-img" />
         <h2>Login Admin</h2>
-        <p>Silakan masuk untuk mengakses generator.</p>
+        <p>Silakan masuk atau gunakan Mode Bebas.</p>
         <form id="login-form">
           <div class="form-group">
             <label>Email</label>
@@ -27,7 +27,7 @@
               type="email"
               id="login-email"
               required
-              placeholder="admin@rapa.com"
+              placeholder="admin@email.com"
             />
           </div>
           <div class="form-group">
@@ -66,12 +66,19 @@
     <header class="app-header">
       <img src="rapa-logo.png" alt="Logo" id="app-logo" />
       <h1>Generator Dokumen <span id="app-company-name">Rapa Cement &amp; GRC</span></h1>
-      <div id="guest-badge" class="guest-badge" style="display: none;">Mode Tamu (Offline)</div>
+      <button
+        class="btn-profile-toggle"
+        id="profile-toggle-btn"
+        onclick="toggleCompanyProfile()"
+        title="Ubah Nama Perusahaan, Logo, Rekening, Kota, dll."
+      >
+        🏢 <span>Info Usaha</span>
+      </button>
+      <div id="guest-badge" class="guest-badge" style="display: none;">Mode Tamu (Bebas)</div>
       <button
         class="btn-logout"
         id="logout-btn"
         onclick="handleLogout()"
-        style="margin-left: auto"
       >
         🚪 Logout
       </button>
@@ -82,6 +89,141 @@
       <!-- ════ LEFT: FORM PANEL ════ -->
       <div class="panel-form">
         <div class="panel-form-inner">
+
+          <!-- 🏢 COMPANY PROFILE CARD (Collapsible Quick Edit) -->
+          <div class="company-card" id="company-card">
+            <div class="company-card-header" onclick="toggleCompanyProfile()">
+              <div class="title-area">
+                <span style="font-size: 18px">🏢</span>
+                <div>
+                  <div class="title-text" id="card-company-name">RAPA CEMENT &amp; GRC</div>
+                  <div class="sub-text" id="card-company-sub">Klik untuk ubah nama usaha, logo, kota, rekening &amp; tanda tangan</div>
+                </div>
+              </div>
+              <span class="accordion-arrow" id="profile-arrow">▼</span>
+            </div>
+            <div class="company-card-body" id="company-card-body" style="display: none">
+              <div class="form-row cols-2" style="margin-bottom: 8px">
+                <div class="form-group">
+                  <label>Preset Profil</label>
+                  <select id="preset-selector" onchange="loadPreset(this.value)">
+                    <option value="rapa" selected>RAPA Cement &amp; GRC</option>
+                    <option value="bintang">Bintang Jaya Material</option>
+                    <option value="blank">Kosongkan (Mulai dari Nol)</option>
+                    <option value="custom">-- Kustom Saya --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Logo Usaha</label>
+                  <div style="display: flex; gap: 6px; align-items: center">
+                    <input
+                      type="file"
+                      id="logo-file-input"
+                      accept="image/*"
+                      style="display: none"
+                      onchange="handleLogoUpload(event)"
+                    />
+                    <button
+                      type="button"
+                      class="btn-sm"
+                      onclick="document.getElementById('logo-file-input').click()"
+                      style="flex: 1"
+                      title="Upload gambar logo (PNG/JPG)"
+                    >
+                      📁 Upload
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-sm btn-danger-outline"
+                      onclick="removeLogo()"
+                      title="Hapus / Sembunyikan Logo"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nama Perusahaan / Usaha</label>
+                  <input
+                    type="text"
+                    id="cfg-name"
+                    placeholder="Contoh: PT MAJU BERSAMA"
+                    oninput="updateConfigField('name', this.value)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row cols-2">
+                <div class="form-group">
+                  <label>Kota Dokumen (pada Tanggal)</label>
+                  <input
+                    type="text"
+                    id="cfg-city"
+                    placeholder="Contoh: Jakarta, Surabaya, Magelang"
+                    oninput="updateConfigField('city', this.value)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>No. Telp / WhatsApp</label>
+                  <input
+                    type="text"
+                    id="cfg-telp"
+                    placeholder="Telp: 081234567890"
+                    oninput="updateConfigField('telp', this.value)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Alamat Lengkap</label>
+                  <input
+                    type="text"
+                    id="cfg-addr"
+                    placeholder="Jl. Raya Utama No. 123, Kel. Suka, Kota"
+                    oninput="updateConfigField('addr', this.value)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row cols-2">
+                <div class="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    id="cfg-email"
+                    placeholder="kontak@perusahaan.com"
+                    oninput="updateConfigField('email', this.value)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Nama Tanda Tangan (Pihak Toko)</label>
+                  <input
+                    type="text"
+                    id="cfg-signature"
+                    placeholder="Contoh: BAGIAN PENJUALAN"
+                    oninput="updateConfigField('signatureName', this.value)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Info Rekening / Catatan Pembayaran</label>
+                  <input
+                    type="text"
+                    id="cfg-bank"
+                    placeholder="Contoh: BCA 1234567890 A.N NAMA PEMILIK"
+                    oninput="updateConfigField('bank', this.value)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Tab -->
           <div class="tab-group">
             <button
@@ -89,19 +231,40 @@
               data-tab="nota"
               onclick="switchTab('nota')"
             >
-              📄 Nota Penjualan
+              📄 Nota / Invoice
             </button>
             <button class="tab-btn" data-tab="sj" onclick="switchTab('sj')">
               🚚 Surat Jalan
             </button>
           </div>
 
-          <!-- ───────── FORM NOTA ───────── -->
+          <!-- ───────── FORM NOTA / INVOICE ───────── -->
           <div id="form-nota">
             <p class="section-title">Info Dokumen</p>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Judul Dokumen</label>
+                <select id="nota-title-select" onchange="handleNotaTitleChange()">
+                  <option value="INVOICE">INVOICE</option>
+                  <option value="NOTA PENJUALAN" selected>NOTA PENJUALAN</option>
+                  <option value="FAKTUR PENJUALAN">FAKTUR PENJUALAN</option>
+                  <option value="CUSTOM">Lainnya (Ketik Manual)...</option>
+                </select>
+              </div>
+              <div class="form-group" id="nota-title-custom-wrap" style="display: none">
+                <label>Judul Kustom</label>
+                <input
+                  type="text"
+                  id="nota-title-custom"
+                  placeholder="Ketik judul..."
+                  oninput="updatePreview()"
+                />
+              </div>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
-                <label>No. Nota</label>
+                <label id="nota-nomor-label">No. Dokumen</label>
                 <div class="nomor-row">
                   <input
                     type="text"
@@ -110,30 +273,29 @@
                   />
                   <button
                     class="btn-sm"
-                    onclick="
-                      generateNewNomor('nota_counter', 'NP', 'nota-nomor')
-                    "
+                    title="Buat nomor baru berikutnya"
+                    onclick="generateNewNomor('nota_counter', getNotaPrefix(), 'nota-nomor')"
                   >
                     ↻ Baru
                   </button>
                   <button
                     class="btn-sm"
                     title="Kembali ke nomor sebelumnya"
-                    onclick="
-                      decrementSequence('nota_counter', 'NP', 'nota-nomor')
-                    "
+                    onclick="decrementSequence('nota_counter', getNotaPrefix(), 'nota-nomor')"
                   >
                     ⬅️
                   </button>
                   <button
                     class="btn-sm btn-danger-outline"
-                    onclick="resetSequence('nota_counter', 'NP', 'nota-nomor')"
+                    title="Reset nomor ke 001"
+                    onclick="resetSequence('nota_counter', getNotaPrefix(), 'nota-nomor')"
                   >
                     🗑️ Reset
                   </button>
                 </div>
               </div>
             </div>
+
             <div class="form-row cols-2">
               <div class="form-group">
                 <label>Tanggal</label>
@@ -145,21 +307,60 @@
               </div>
             </div>
 
-            <p class="section-title">Daftar Barang</p>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Kepada Yth. (Customer)</label>
+                <input
+                  type="text"
+                  id="nota-kepada"
+                  placeholder="Nama customer / toko"
+                  oninput="updatePreview()"
+                />
+              </div>
+              <div class="form-group">
+                <label>Alamat Customer (Opsional)</label>
+                <input
+                  type="text"
+                  id="nota-alamat-customer"
+                  placeholder="Kota / Alamat penerima"
+                  oninput="updatePreview()"
+                />
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px">
+              <p class="section-title" style="margin: 0; border: none; padding: 0">Daftar Barang</p>
+              <label style="font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--blue)" title="Centang jika menjual barang berbasis Dimensi M² (Tegel/Marmer)">
+                <input
+                  type="checkbox"
+                  id="toggle-tegel-mode"
+                  onchange="toggleTegelMode(this.checked)"
+                />
+                Mode Tegel (PCs &amp; M²)
+              </label>
+            </div>
+
+            <datalist id="satuan-presets">
+              <option value="pcs"></option>
+              <option value="box"></option>
+              <option value="unit"></option>
+              <option value="set"></option>
+              <option value="meter"></option>
+              <option value="m²"></option>
+              <option value="kg"></option>
+              <option value="roll"></option>
+              <option value="rim"></option>
+              <option value="sak"></option>
+              <option value="liter"></option>
+              <option value="paket"></option>
+              <option value="lusin"></option>
+              <option value="hari"></option>
+              <option value="jam"></option>
+            </datalist>
+
             <div class="items-form-wrap">
               <table class="items-form-table">
-                <thead>
-                  <tr>
-                    <th style="width: 22px">#</th>
-                    <th style="width: 80px">Tipe</th>
-                    <th>Nama Barang</th>
-                    <th style="width: 52px">PCs</th>
-                    <th style="width: 52px">M2</th>
-                    <th style="width: 90px">Harga (Rp)</th>
-                    <th style="width: 80px">Jumlah</th>
-                    <th style="width: 24px"></th>
-                  </tr>
-                </thead>
+                <thead id="nota-items-thead"></thead>
                 <tbody id="nota-items-tbody"></tbody>
               </table>
             </div>
@@ -169,10 +370,20 @@
 
             <p class="section-title">Pembayaran</p>
             <div class="summary-row">
-              <label>DP (Rp)</label>
+              <label>Subtotal (Rp)</label>
               <input
                 type="text"
-                id="nota-dp"
+                id="nota-subtotal"
+                placeholder="0"
+                style="width: 140px; text-align: right"
+                readonly
+              />
+            </div>
+            <div class="summary-row">
+              <label>Diskon (Rp)</label>
+              <input
+                type="text"
+                id="nota-diskon"
                 placeholder="0"
                 style="width: 140px; text-align: right"
                 oninput="updatePreview()"
@@ -188,8 +399,18 @@
                 oninput="updatePreview()"
               />
             </div>
+            <div class="summary-row">
+              <label>DP (Rp)</label>
+              <input
+                type="text"
+                id="nota-dp"
+                placeholder="0"
+                style="width: 140px; text-align: right"
+                oninput="updatePreview()"
+              />
+            </div>
             <div class="summary-row total">
-              <label>Kekurangan</label>
+              <label>Kekurangan / Total</label>
               <input
                 type="text"
                 id="nota-kekurangan"
@@ -207,7 +428,50 @@
 
           <!-- ───────── FORM SURAT JALAN ───────── -->
           <div id="form-sj" style="display: none">
+            <button
+              type="button"
+              class="btn-sm"
+              style="
+                width: 100%;
+                margin-bottom: 12px;
+                background: var(--blue-lt);
+                color: var(--blue);
+                border-color: var(--blue);
+                font-weight: 700;
+                padding: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+              "
+              onclick="copyFromInvoice()"
+              title="Salin No PO, Kepada Yth, dan daftar barang dari Nota/Invoice"
+            >
+              📋 Salin Data dari Nota / Invoice
+            </button>
+
             <p class="section-title">Info Dokumen</p>
+            <div class="form-row cols-2">
+              <div class="form-group">
+                <label>Judul Dokumen</label>
+                <select id="sj-title-select" onchange="handleSJTitleChange()">
+                  <option value="SURAT JALAN" selected>SURAT JALAN</option>
+                  <option value="DELIVERY ORDER">DELIVERY ORDER</option>
+                  <option value="SURAT PENGANTAR">SURAT PENGANTAR</option>
+                  <option value="CUSTOM">Lainnya (Ketik Manual)...</option>
+                </select>
+              </div>
+              <div class="form-group" id="sj-title-custom-wrap" style="display: none">
+                <label>Judul Kustom</label>
+                <input
+                  type="text"
+                  id="sj-title-custom"
+                  placeholder="Ketik judul..."
+                  oninput="updatePreview()"
+                />
+              </div>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label>No. Surat Jalan</label>
@@ -219,20 +483,22 @@
                   />
                   <button
                     class="btn-sm"
-                    onclick="generateNewNomor('sj_counter', 'SJ', 'sj-nomor')"
+                    title="Buat nomor baru berikutnya"
+                    onclick="generateNewNomor('sj_counter', getSJPrefix(), 'sj-nomor')"
                   >
                     ↻ Baru
                   </button>
                   <button
                     class="btn-sm"
                     title="Kembali ke nomor sebelumnya"
-                    onclick="decrementSequence('sj_counter', 'SJ', 'sj-nomor')"
+                    onclick="decrementSequence('sj_counter', getSJPrefix(), 'sj-nomor')"
                   >
                     ⬅️
                   </button>
                   <button
                     class="btn-sm btn-danger-outline"
-                    onclick="resetSequence('sj_counter', 'SJ', 'sj-nomor')"
+                    title="Reset nomor ke 001"
+                    onclick="resetSequence('sj_counter', getSJPrefix(), 'sj-nomor')"
                   >
                     🗑️ Reset
                   </button>
@@ -241,11 +507,11 @@
             </div>
             <div class="form-row cols-2">
               <div class="form-group">
-                <label>No. Surat</label>
+                <label>No. Surat / Dokumen</label>
                 <input
                   type="text"
                   id="sj-nosurat"
-                  placeholder="xxx/RCG/II/2025"
+                  placeholder="001/SJ/X/2026"
                 />
               </div>
               <div class="form-group">
@@ -264,6 +530,17 @@
                   type="text"
                   id="sj-kepada"
                   placeholder="Nama customer / toko"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Alamat Kirim (Opsional)</label>
+                <input
+                  type="text"
+                  id="sj-alamat"
+                  placeholder="Alamat tujuan pengiriman"
+                  oninput="updatePreview()"
                 />
               </div>
             </div>
@@ -289,15 +566,28 @@
             </button>
 
             <p class="section-title">Keterangan</p>
-            <div class="form-group">
-              <label>Catatan Pengiriman</label>
-              <textarea
-                id="sj-catatan"
-                rows="3"
-                placeholder="Keterangan tambahan / catatan pengiriman..."
-                style="resize: vertical"
-                oninput="updatePreview()"
-              ></textarea>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Catatan Pengiriman / Ekspedisi</label>
+                <textarea
+                  id="sj-catatan"
+                  rows="2"
+                  placeholder="Keterangan tambahan / catatan pengiriman / plat mobil..."
+                  style="resize: vertical"
+                  oninput="updatePreview()"
+                ></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Teks Bukti Penerimaan</label>
+                <input
+                  type="text"
+                  id="sj-note-bawah"
+                  value="Barang diterima dengan kondisi baik"
+                  oninput="updatePreview()"
+                />
+              </div>
             </div>
           </div>
         </div>
