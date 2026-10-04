@@ -1,51 +1,54 @@
 // ─── CONSTANTS & CONFIGURATION PRESETS ─────────────────────────
-const DEFAULT_RAPA_CONFIG = {
-  id: 'rapa',
-  logo: 'rapa-logo.png',
-  name: 'RAPA CEMENT & GRC',
-  shortName: 'Rapa Cement & GRC',
-  addr: 'Jl. Ngadiretno no. 33, Tamanagung, Muntilan, Magelang 56413',
-  telp: 'Telp: 08112959125 / 082134567874',
-  email: 'rapastone33@gmail.com',
-  city: 'Magelang',
-  bank: 'BCA A.N NURJAMAL a c :1040257477',
-  signatureName: 'RAPA CAST STONE'
-};
-
-const DEFAULT_BINTANG_CONFIG = {
-  id: 'bintang',
-  logo: 'random.png',
-  name: 'BINTANG JAYA MATERIAL',
-  shortName: 'Bintang Jaya Material',
-  addr: 'Jl. Contoh Fiktif No. 99, Jakarta Selatan 12345',
-  telp: 'Telp: 081234567890',
-  email: 'hello@bintangmaterial.dummy',
-  city: 'Jakarta Selatan',
-  bank: 'MANDIRI A.N BINTANG JAYA : 1234567890',
-  signatureName: 'BINTANG JAYA MATERIAL'
-};
-
-const BLANK_CONFIG = {
-  id: 'blank',
+// Preset 1: Contoh usaha material / bangunan
+const PRESET_MATERIAL_CONFIG = {
+  id: 'preset1',
   logo: '',
-  name: 'NAMA PERUSAHAAN / TOKO',
-  shortName: 'Nama Toko / Perusahaan',
-  addr: 'Jl. Alamat Usaha No. 1, Kota',
-  telp: 'Telp: 08123456789',
-  email: 'email@usaha.com',
-  city: 'Jakarta',
+  name: 'TOKO MAJU BERSAMA',
+  shortName: 'Toko Maju Bersama',
+  addr: 'Jl. Raya Contoh No. 10, Kecamatan Maju, Kota Sejahtera 12345',
+  telp: 'Telp / WA: 0812-3456-7890',
+  email: 'toko@majubersama.com',
+  city: 'Kota Sejahtera',
   bank: 'BCA 1234567890 A.N NAMA PEMILIK',
   signatureName: 'HORMAT KAMI'
 };
 
-let currentConfig = { ...DEFAULT_RAPA_CONFIG };
+// Preset 2: Contoh usaha jasa / CV
+const PRESET_JASA_CONFIG = {
+  id: 'preset2',
+  logo: '',
+  name: 'CV. KARYA MANDIRI',
+  shortName: 'CV. Karya Mandiri',
+  addr: 'Jl. Usaha Mandiri No. 5, Kelurahan Jaya, Kota Maju 67890',
+  telp: 'Telp / WA: 0821-9876-5432',
+  email: 'info@karyamandiri.com',
+  city: 'Kota Maju',
+  bank: 'Mandiri 0987654321 A.N NAMA PEMILIK',
+  signatureName: 'HORMAT KAMI'
+};
+
+// Default kosong — diisi langsung oleh pengguna
+const BLANK_CONFIG = {
+  id: 'blank',
+  logo: '',
+  name: '',
+  shortName: '',
+  addr: '',
+  telp: '',
+  email: '',
+  city: '',
+  bank: '',
+  signatureName: 'HORMAT KAMI'
+};
+
+let currentConfig = { ...BLANK_CONFIG };
 
 // ─── LOCALSTORAGE CONFIG MANAGEMENT ──────────────────────────
 function loadSavedConfig() {
   const saved = localStorage.getItem('saved_company_config');
   if (saved) {
     try {
-      currentConfig = Object.assign({}, DEFAULT_RAPA_CONFIG, JSON.parse(saved));
+      currentConfig = Object.assign({}, BLANK_CONFIG, JSON.parse(saved));
     } catch (e) {
       console.error('Error reading company config from localStorage:', e);
     }
@@ -70,10 +73,10 @@ function updateConfigField(field, value) {
 }
 
 function loadPreset(presetKey) {
-  if (presetKey === 'rapa') {
-    currentConfig = { ...DEFAULT_RAPA_CONFIG };
-  } else if (presetKey === 'bintang') {
-    currentConfig = { ...DEFAULT_BINTANG_CONFIG };
+  if (presetKey === 'preset1') {
+    currentConfig = { ...PRESET_MATERIAL_CONFIG };
+  } else if (presetKey === 'preset2') {
+    currentConfig = { ...PRESET_JASA_CONFIG };
   } else if (presetKey === 'blank') {
     currentConfig = { ...BLANK_CONFIG };
   } else {

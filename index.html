@@ -15,8 +15,8 @@
   <body>
     <!-- ── HEADER ─────────────────────────────────────────── -->
     <header class="app-header">
-      <img src="rapa-logo.png" alt="Logo" id="app-logo" />
-      <h1>Generator Dokumen <span id="app-company-name">Rapa Cement &amp; GRC</span></h1>
+      <img src="" alt="Logo" id="app-logo" style="display:none" />
+      <h1>Generator Dokumen <span id="app-company-name">Nama Usaha Anda</span></h1>
       <button
         class="btn-profile-toggle"
         id="profile-toggle-btn"
@@ -34,26 +34,26 @@
         <div class="panel-form-inner">
 
           <!-- 🏢 COMPANY PROFILE CARD (Collapsible Quick Edit) -->
-          <div class="company-card" id="company-card">
+          <div class="company-card expanded" id="company-card">
             <div class="company-card-header" onclick="toggleCompanyProfile()">
               <div class="title-area">
                 <span style="font-size: 18px">🏢</span>
                 <div>
-                  <div class="title-text" id="card-company-name">RAPA CEMENT &amp; GRC</div>
+                  <div class="title-text" id="card-company-name">Isi Nama Usaha Anda</div>
                   <div class="sub-text" id="card-company-sub">Klik untuk ubah nama usaha, logo, kota, rekening &amp; tanda tangan</div>
                 </div>
               </div>
-              <span class="accordion-arrow" id="profile-arrow">▼</span>
+              <span class="accordion-arrow open" id="profile-arrow">▼</span>
             </div>
-            <div class="company-card-body" id="company-card-body" style="display: none">
+            <div class="company-card-body" id="company-card-body" style="display: block">
               <div class="form-row cols-2" style="margin-bottom: 8px">
                 <div class="form-group">
-                  <label>Preset Profil</label>
+                  <label>Contoh Profil</label>
                   <select id="preset-selector" onchange="loadPreset(this.value)">
-                    <option value="rapa" selected>RAPA Cement &amp; GRC</option>
-                    <option value="bintang">Bintang Jaya Material</option>
-                    <option value="blank">Kosongkan (Mulai dari Nol)</option>
-                    <option value="custom">-- Kustom Saya --</option>
+                    <option value="blank" selected>— Mulai dari Kosong —</option>
+                    <option value="preset1">Contoh: Toko Material</option>
+                    <option value="preset2">Contoh: CV / Jasa</option>
+                    <option value="custom">✏️ Kustom Saya</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -105,7 +105,7 @@
                   <input
                     type="text"
                     id="cfg-city"
-                    placeholder="Contoh: Jakarta, Surabaya, Magelang"
+                    placeholder="Contoh: Jakarta, Bandung, Surabaya"
                     oninput="updateConfigField('city', this.value)"
                   />
                 </div>
@@ -114,7 +114,7 @@
                   <input
                     type="text"
                     id="cfg-telp"
-                    placeholder="Telp: 081234567890"
+                    placeholder="Contoh: 0812-3456-7890"
                     oninput="updateConfigField('telp', this.value)"
                   />
                 </div>
