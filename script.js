@@ -40,14 +40,14 @@ const BLANK_CONFIG = {
 
 let currentConfig = { ...DEFAULT_RAPA_CONFIG };
 
-// ─── CONFIG STORAGE & MANAGEMENT ──────────────────────────
+// ─── LOCALSTORAGE CONFIG MANAGEMENT ──────────────────────────
 function loadSavedConfig() {
   const saved = localStorage.getItem('saved_company_config');
   if (saved) {
     try {
       currentConfig = Object.assign({}, DEFAULT_RAPA_CONFIG, JSON.parse(saved));
     } catch (e) {
-      console.error('Error parsing saved company config:', e);
+      console.error('Error reading company config from localStorage:', e);
     }
   }
 }
@@ -140,7 +140,8 @@ function updateHeaderAndCardBranding() {
     }
   }
   if (appCompanyName) {
-    appCompanyName.innerText = currentConfig.shortName || currentConfig.name || '';
+    appCompanyName.innerText =
+      currentConfig.shortName || currentConfig.name || '';
   }
   if (cardCompanyName) {
     cardCompanyName.innerText = currentConfig.name || 'Profil Usaha';
@@ -163,7 +164,6 @@ let activeTab = 'nota';
 let isTegelMode = false;
 let notaItems = [newItem()];
 let sjItems = [newSJItem()];
-let isGuest = false;
 
 function newItem() {
   return {
@@ -192,15 +192,28 @@ function toggleTegelMode(checked) {
   updatePreview();
 }
 
-// ─── SUPABASE PARAMS ───────────────────────────────────────
-const supabaseUrl = 'https://yhhxbmbjzrgtfxjdrizu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloaHhibWJqenJndGZ4amRyaXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNzQyNjgsImV4cCI6MjA4Nzc1MDI2OH0.2bX25UW6r_BcN_yHUPN7ap5wRHuFhZFawTAuZKFvLmo';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-// ─── NOMOR AUTO (SUPABASE / LOCALSTORAGE) ───────────────────
+// ─── LOCALSTORAGE DOCUMENT SEQUENCING ──────────────────────
 function getYYYYMM() {
   const d = new Date();
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getStoredSequence(key) {
+  const ym = getYYYYMM();
+  const raw = localStorage.getItem(`seq_${key}`);
+  if (raw) {
+    try {
+      const data = JSON.parse(raw);
+      if (data && data.ym === ym) return data;
+    } catch (e) {
+      console.error('Error reading sequence:', e);
+    }
+  }
+  return { ym, seq: 0, current_val: '' };
+}
+
+function setStoredSequence(key, data) {
+  localStorage.setItem(`seq_${key}`, JSON.stringify(data));
 }
 
 function getNotaTitle() {
@@ -263,175 +276,63 @@ function handleSJTitleChange() {
   updatePreview();
 }
 
-async function initNomor(key, prefix, inputId) {
+function initNomor(key, prefix, inputId) {
   const ym = getYYYYMM();
   const inputEl = document.getElementById(inputId);
   if (!inputEl) return;
-  inputEl.value = 'Loading...';
 
-  let data, error;
-
-  if (isGuest) {
-    const localData = localStorage.getItem(`seq_${key}`);
-    data = localData ? JSON.parse(localData) : null;
-  } else {
-    const res = await supabaseClient
-      .from('document_sequences')
-      .select('*')
-      .eq('id', key)
-      .single();
-    data = res.data;
-    error = res.error;
-  }
-
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching sequence:', error);
-    inputEl.value = `${prefix}-${ym}-001`;
-    return;
-  }
-
+  const data = getStoredSequence(key);
   let nomor;
-  if (data) {
-    if (data.ym === ym && data.current_val) {
-      nomor = data.current_val;
-    } else {
-      let nextSeq = data.ym === ym ? data.seq || 0 : 0;
-      nextSeq++;
-      nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
-
-      if (isGuest) {
-        localStorage.setItem(
-          `seq_${key}`,
-          JSON.stringify({ ym: ym, seq: nextSeq, current_val: nomor })
-        );
-      } else {
-        await supabaseClient
-          .from('document_sequences')
-          .update({ ym: ym, seq: nextSeq, current_val: nomor })
-          .eq('id', key);
-      }
-    }
+  if (data.current_val) {
+    nomor = data.current_val;
   } else {
-    nomor = `${prefix}-${ym}-001`;
-    if (isGuest) {
-      localStorage.setItem(
-        `seq_${key}`,
-        JSON.stringify({ ym: ym, seq: 1, current_val: nomor })
-      );
-    }
+    const nextSeq = (data.seq || 0) + 1;
+    nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
+    setStoredSequence(key, { ym, seq: nextSeq, current_val: nomor });
   }
 
   inputEl.value = nomor;
   updatePreview();
 }
 
-async function saveCurrentNomor(key, val) {
+function saveCurrentNomor(key, val) {
   const parts = val.split('-');
   const seqPart = parts[parts.length - 1];
   const seqNum = parseInt(seqPart) || 0;
   const ym = parts.length > 1 ? parts[parts.length - 2] : getYYYYMM();
 
-  const updateData = { current_val: val };
-  if (seqNum > 0) {
-    updateData.seq = seqNum;
-    updateData.ym = ym;
-  }
-
-  if (isGuest) {
-    localStorage.setItem(
-      `seq_${key}`,
-      JSON.stringify({ ym: ym, seq: seqNum, current_val: val })
-    );
-  } else {
-    await supabaseClient
-      .from('document_sequences')
-      .update(updateData)
-      .eq('id', key);
-  }
+  setStoredSequence(key, { ym, seq: seqNum, current_val: val });
 }
 
-let debounceTimer = {};
-function debounceSaveNomor(key, val) {
-  clearTimeout(debounceTimer[key]);
-  debounceTimer[key] = setTimeout(() => {
-    saveCurrentNomor(key, val);
-  }, 500);
-}
-
-async function generateNewNomor(key, prefix, inputId) {
+function generateNewNomor(key, prefix, inputId) {
   const inputEl = document.getElementById(inputId);
   if (!inputEl) return;
-  inputEl.value = 'Generating...';
 
   const ym = getYYYYMM();
-  let data;
-
-  if (isGuest) {
-    const localData = localStorage.getItem(`seq_${key}`);
-    data = localData ? JSON.parse(localData) : { ym: ym, seq: 0 };
-  } else {
-    const res = await supabaseClient
-      .from('document_sequences')
-      .select('*')
-      .eq('id', key)
-      .single();
-    data = res.data;
-  }
-
-  let nextSeq = data && data.ym === ym ? data.seq || 0 : 0;
-  nextSeq++;
+  const data = getStoredSequence(key);
+  const nextSeq = (data.seq || 0) + 1;
   const nomor = `${prefix}-${ym}-${String(nextSeq).padStart(3, '0')}`;
 
-  if (isGuest) {
-    localStorage.setItem(
-      `seq_${key}`,
-      JSON.stringify({ ym: ym, seq: nextSeq, current_val: nomor })
-    );
-  } else {
-    await supabaseClient
-      .from('document_sequences')
-      .update({ ym: ym, seq: nextSeq, current_val: nomor })
-      .eq('id', key);
-  }
-
+  setStoredSequence(key, { ym, seq: nextSeq, current_val: nomor });
   inputEl.value = nomor;
   updatePreview();
 }
 
-async function resetSequence(key, prefix, inputId) {
+function resetSequence(key, prefix, inputId) {
   if (!confirm('Yakin ingin reset nomor ke 001 untuk bulan ini?')) return;
 
   const inputEl = document.getElementById(inputId);
   if (!inputEl) return;
-  inputEl.value = 'Resetting...';
 
   const ym = getYYYYMM();
   const nomor = `${prefix}-${ym}-001`;
 
-  if (isGuest) {
-    localStorage.setItem(
-      `seq_${key}`,
-      JSON.stringify({ ym: ym, seq: 1, current_val: nomor })
-    );
-    inputEl.value = nomor;
-    updatePreview();
-  } else {
-    const { error } = await supabaseClient
-      .from('document_sequences')
-      .update({ ym: ym, seq: 1, current_val: nomor })
-      .eq('id', key);
-
-    if (error) {
-      alert('Gagal reset: ' + error.message);
-      initNomor(key, prefix, inputId);
-    } else {
-      inputEl.value = nomor;
-      updatePreview();
-    }
-  }
+  setStoredSequence(key, { ym, seq: 1, current_val: nomor });
+  inputEl.value = nomor;
+  updatePreview();
 }
 
-async function decrementSequence(key, prefix, inputId) {
+function decrementSequence(key, prefix, inputId) {
   const inputEl = document.getElementById(inputId);
   if (!inputEl) return;
   const currentVal = inputEl.value;
@@ -448,29 +349,9 @@ async function decrementSequence(key, prefix, inputId) {
   const ym = getYYYYMM();
   const nomor = `${prefix}-${ym}-${String(seqNum).padStart(3, '0')}`;
 
-  inputEl.value = 'Rolling back...';
-
-  if (isGuest) {
-    localStorage.setItem(
-      `seq_${key}`,
-      JSON.stringify({ ym: ym, seq: seqNum, current_val: nomor })
-    );
-    inputEl.value = nomor;
-    updatePreview();
-  } else {
-    const { error } = await supabaseClient
-      .from('document_sequences')
-      .update({ ym: ym, seq: seqNum, current_val: nomor })
-      .eq('id', key);
-
-    if (error) {
-      alert('Gagal undo: ' + error.message);
-      initNomor(key, prefix, inputId);
-    } else {
-      inputEl.value = nomor;
-      updatePreview();
-    }
-  }
+  setStoredSequence(key, { ym, seq: seqNum, current_val: nomor });
+  inputEl.value = nomor;
+  updatePreview();
 }
 
 // ─── COPY FROM INVOICE TO SURAT JALAN ──────────────────────
@@ -493,11 +374,15 @@ function copyFromInvoice() {
   if (notaItems && notaItems.length > 0) {
     sjItems = notaItems.map((it, idx) => {
       const qtyVal = isTegelMode
-        ? (it.type === 'tegel' ? (it.m2 || it.pcs || '1') : (it.pcs || '1'))
-        : (it.qty || it.pcs || '1');
+        ? it.type === 'tegel'
+          ? it.m2 || it.pcs || '1'
+          : it.pcs || '1'
+        : it.qty || it.pcs || '1';
       const satVal = isTegelMode
-        ? (it.type === 'tegel' ? 'm²' : 'pcs')
-        : (it.satuan || 'pcs');
+        ? it.type === 'tegel'
+          ? 'm²'
+          : 'pcs'
+        : it.satuan || 'pcs';
       return {
         kode: (idx + 1).toString().padStart(3, '0'),
         nama: it.nama || '',
@@ -947,6 +832,13 @@ function resetForm() {
   updatePreview();
 }
 
+// ─── RESET ALL DATA TO DEFAULT ───────────────────────────
+function resetAllData() {
+  if (!confirm('Yakin ingin mereset semua data, nomor, dan profil ke bawaan awal?')) return;
+  localStorage.clear();
+  location.reload();
+}
+
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedConfig();
@@ -960,16 +852,19 @@ document.addEventListener('DOMContentLoaded', () => {
   switchTab('nota');
 
   // Debounced save for document numbers
-  document
-    .getElementById('nota-nomor')
-    .addEventListener('input', (e) =>
-      debounceSaveNomor('nota_counter', e.target.value)
+  const notaNomorEl = document.getElementById('nota-nomor');
+  if (notaNomorEl) {
+    notaNomorEl.addEventListener('input', (e) =>
+      saveCurrentNomor('nota_counter', e.target.value)
     );
-  document
-    .getElementById('sj-nomor')
-    .addEventListener('input', (e) =>
-      debounceSaveNomor('sj_counter', e.target.value)
+  }
+
+  const sjNomorEl = document.getElementById('sj-nomor');
+  if (sjNomorEl) {
+    sjNomorEl.addEventListener('input', (e) =>
+      saveCurrentNomor('sj_counter', e.target.value)
     );
+  }
 
   // Live preview update on all input elements
   document
@@ -982,97 +877,4 @@ document.addEventListener('DOMContentLoaded', () => {
     .forEach((el) => {
       el.addEventListener('input', updatePreview);
     });
-
-  // Auth Logic
-  const authOverlay = document.getElementById('auth-overlay');
-  const loginForm = document.getElementById('login-form');
-  const loginError = document.getElementById('login-error');
-
-  async function checkSession() {
-    const {
-      data: { session }
-    } = await supabaseClient.auth.getSession();
-    if (session) {
-      setUIMode('admin');
-    } else {
-      if (sessionStorage.getItem('guestMode') === 'true') {
-        setUIMode('guest');
-      } else {
-        showAuthOverlay(true);
-      }
-    }
-  }
-
-  function setUIMode(mode) {
-    const guestBadge = document.getElementById('guest-badge');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    if (mode === 'admin') {
-      isGuest = false;
-      showAuthOverlay(false);
-      if (guestBadge) guestBadge.style.display = 'none';
-      if (logoutBtn) logoutBtn.innerHTML = '🚪 Logout Admin';
-      sessionStorage.removeItem('guestMode');
-    } else if (mode === 'guest') {
-      isGuest = true;
-      showAuthOverlay(false);
-      if (guestBadge) guestBadge.style.display = 'block';
-      if (logoutBtn) logoutBtn.innerHTML = '🚪 Keluar Mode Bebas';
-      sessionStorage.setItem('guestMode', 'true');
-    } else {
-      showAuthOverlay(true);
-    }
-
-    updateHeaderAndCardBranding();
-    initNomor('nota_counter', getNotaPrefix(), 'nota-nomor');
-    initNomor('sj_counter', getSJPrefix(), 'sj-nomor');
-    updatePreview();
-  }
-
-  function showAuthOverlay(show) {
-    if (authOverlay) {
-      authOverlay.style.display = show ? 'flex' : 'none';
-      document.body.style.overflow = show ? 'hidden' : '';
-    }
-  }
-
-  window.continueAsGuest = function () {
-    setUIMode('guest');
-  };
-
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-      setUIMode('admin');
-    } else if (event === 'SIGNED_OUT') {
-      showAuthOverlay(true);
-      sessionStorage.removeItem('guestMode');
-    }
-  });
-
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.style.display = 'none';
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-pwd').value;
-
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-    if (error) {
-      loginError.innerText = error.message;
-      loginError.style.display = 'block';
-    }
-  });
-
-  window.handleLogout = async function () {
-    if (isGuest) {
-      sessionStorage.removeItem('guestMode');
-      location.reload();
-    } else {
-      await supabaseClient.auth.signOut();
-    }
-  };
-
-  checkSession();
 });
